@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Header from './components/Header';
 import Category from './components/Category';
 import ProductList from './components/ProductList';
@@ -24,13 +24,20 @@ const categories = Object.keys(categoryMap);
 const App: React.FC = () => {
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [currentCategory, setCurrentCategory] = useState<string>(categories[0]);
+    const timerRef = useRef<{ resetTimer: () => void }>(null);
 
     const handleProductClick = (product: Product) => {
         setSelectedProducts([...selectedProducts, product]);
+        if (timerRef.current) {
+            timerRef.current.resetTimer();
+        }
     };
 
     const handleCategoryClick = (category: string) => {
         setCurrentCategory(category);
+        if (timerRef.current) {
+            timerRef.current.resetTimer();
+        }
     };
 
     return (
@@ -39,7 +46,7 @@ const App: React.FC = () => {
             <Category categories={categories} categoryMap={categoryMap} onCategoryClick={handleCategoryClick} />
             <ProductList category={currentCategory} onProductClick={handleProductClick} />
             <SelectedItems selectedProducts={selectedProducts} onClear={() => setSelectedProducts([])} />
-            <Timer />
+            <Timer ref={timerRef} />
             <CheckoutButton />
         </div>
     );
