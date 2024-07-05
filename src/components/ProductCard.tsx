@@ -1,17 +1,23 @@
 import React from 'react';
 
-interface ProductCardProps {
+interface Product {
+    id: number;
     name: string;
     price: number;
-    image: string;
+    description: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ name, price, image }) => {
+interface ProductCardProps {
+    product: Product;
+    onClick: () => void;
+}
+
+const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
     return (
-        <div className="product-card">
-            <img src={image} alt={name} />
-            <h2>{name}</h2>
-            <p>{price}원</p>
+        <div className="product-card" onClick={onClick}>
+            <h2>{product.name}</h2>
+            <p>{product.price}원</p>
+            <p>{product.description}</p>
         </div>
     );
 }

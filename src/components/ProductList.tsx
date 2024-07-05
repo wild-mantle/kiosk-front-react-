@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import ProductCard from './ProductCard';
 
 interface Product {
     id: number;
@@ -10,6 +11,7 @@ interface Product {
 
 const ProductList: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
+    const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         axios.get('/api/products')
@@ -21,18 +23,31 @@ const ProductList: React.FC = () => {
             });
     }, []);
 
+    const handleProductClick = (product: Product) => {
+        setSelectedProducts([...selectedProducts, product]);
+    };
+
     return (
         <div>
             <h1>Product List</h1>
-            <ul>
+            <div className="product-list">
                 {products.map(product => (
-                    <li key={product.id}>
-                        <h2>{product.name}</h2>
-                        <p>{product.description}</p>
-                        <p>${product.price.toFixed(2)}</p>
-                    </li>
+                    <ProductCard
+                        key={product.id}
+                        product={product}
+                        onClick={() => handleProductClick(product)}
+                    />
                 ))}
-            </ul>
+            </div>
+            <div className="selected-items">
+                <h2>Selected Products</h2>
+                <ul>
+                    {selectedProducts.map((product, index) => (
+                        <li key={index}>{product.name} - {product.price}원</li>
+                    ))}
+                </ul>
+                <button onClick={() => setSelectedProducts([])}>전체삭제</button>
+            </div>
         </div>
     );
 }
