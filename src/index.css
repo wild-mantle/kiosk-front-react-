@@ -10,7 +10,7 @@ body {
   display: grid;
   grid-template-areas:
     "header"
-    "menu"
+    "category"
     "products"
     "selected"
     "timer"
@@ -29,13 +29,13 @@ body {
   padding: 1rem;
 }
 
-.menu {
-  grid-area: menu;
+.category {
+  grid-area: category;
   display: flex;
   justify-content: space-around;
 }
 
-.menu-button {
+.category-button {
   background-color: #FF5733;
   color: white;
   border: none;

@@ -1,16 +1,44 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Header from './components/Header';
-import Menu from './components/Menu';
+import Category from './components/Category';
 import ProductList from './components/ProductList';
+import SelectedItems from './components/SelectedItems';
 import Timer from './components/Timer';
 import CheckoutButton from './components/CheckoutButton';
 
+interface Product {
+    id: number;
+    name: string;
+    price: number;
+    description: string;
+}
+
+const categoryMap = {
+    seasonal: '시즌 메뉴',
+    hotcoffee: '커피(HOT)',
+    coolcoffee: '커피(ICE)'
+};
+
+const categories = Object.keys(categoryMap);
+
 const App: React.FC = () => {
+    const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
+    const [currentCategory, setCurrentCategory] = useState<string>(categories[0]);
+
+    const handleProductClick = (product: Product) => {
+        setSelectedProducts([...selectedProducts, product]);
+    };
+
+    const handleCategoryClick = (category: string) => {
+        setCurrentCategory(category);
+    };
+
     return (
         <div className="app">
             <Header />
-            <Menu />
-            <ProductList />
+            <Category categories={categories} categoryMap={categoryMap} onCategoryClick={handleCategoryClick} />
+            <ProductList category={currentCategory} onProductClick={handleProductClick} />
+            <SelectedItems selectedProducts={selectedProducts} onClear={() => setSelectedProducts([])} />
             <Timer />
             <CheckoutButton />
         </div>
