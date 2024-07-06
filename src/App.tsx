@@ -11,6 +11,7 @@ interface Product {
     name: string;
     price: number;
     description: string;
+    quantity: number;
 }
 
 const categoryMap = {
@@ -32,7 +33,14 @@ const App: React.FC = () => {
     const timerRef = useRef<{ resetTimer: () => void }>(null);
 
     const handleProductClick = (product: Product) => {
-        setSelectedProducts([...selectedProducts, product]);
+        const existingProduct = selectedProducts.find(p => p.id === product.id);
+        if (existingProduct) {
+            setSelectedProducts(selectedProducts.map(p =>
+                p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
+            ));
+        } else {
+            setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
+        }
         if (timerRef.current) {
             timerRef.current.resetTimer();
         }
@@ -45,12 +53,40 @@ const App: React.FC = () => {
         }
     };
 
+    const handleIncreaseQuantity = (productId: number) => {
+        setSelectedProducts(selectedProducts.map(p =>
+            p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
+        ));
+        if (timerRef.current) {
+            timerRef.current.resetTimer();
+        }
+    };
+
+    const handleDecreaseQuantity = (productId: number) => {
+        const product = selectedProducts.find(p => p.id === productId);
+        if (product && product.quantity > 1) {
+            setSelectedProducts(selectedProducts.map(p =>
+                p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
+            ));
+        } else {
+            setSelectedProducts(selectedProducts.filter(p => p.id !== productId));
+        }
+        if (timerRef.current) {
+            timerRef.current.resetTimer();
+        }
+    };
+
     return (
         <div className="app">
             <Header />
             <Category categories={categories} categoryMap={categoryMap} onCategoryClick={handleCategoryClick} />
             <ProductList category={currentCategory} onProductClick={handleProductClick} />
-            <SelectedItems selectedProducts={selectedProducts} onClear={() => setSelectedProducts([])} />
+            <SelectedItems
+                selectedProducts={selectedProducts}
+                onClear={() => setSelectedProducts([])}
+                onIncreaseQuantity={handleIncreaseQuantity}
+                onDecreaseQuantity={handleDecreaseQuantity}
+            />
             <Timer ref={timerRef} />
             <CheckoutButton />
         </div>
