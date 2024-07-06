@@ -18,8 +18,10 @@ const ProductList: React.FC<ProductListProps> = ({ category, onProductClick }) =
     const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
+        console.log(`Fetching products for category: ${category}`);
         axios.get(`/api/products/category/${category}`)
             .then(response => {
+                console.log('Response data:', response.data);
                 setProducts(response.data);
             })
             .catch(error => {
