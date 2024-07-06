@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import ProductCard from './ProductCard';
 
 interface Product {
     id: number;
@@ -8,31 +9,33 @@ interface Product {
     description: string;
 }
 
-const ProductList: React.FC = () => {
+interface ProductListProps {
+    category: string;
+    onProductClick: (product: Product) => void;
+}
+
+const ProductList: React.FC<ProductListProps> = ({ category, onProductClick }) => {
     const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
-        axios.get('/api/products')
+        axios.get(`/api/products/category/${category}`)
             .then(response => {
                 setProducts(response.data);
             })
             .catch(error => {
                 console.error('There was an error fetching the products!', error);
             });
-    }, []);
+    }, [category]);
 
     return (
-        <div>
-            <h1>Product List</h1>
-            <ul>
-                {products.map(product => (
-                    <li key={product.id}>
-                        <h2>{product.name}</h2>
-                        <p>{product.description}</p>
-                        <p>${product.price.toFixed(2)}</p>
-                    </li>
-                ))}
-            </ul>
+        <div className="product-list">
+            {products.map(product => (
+                <ProductCard
+                    key={product.id}
+                    product={product}
+                    onClick={() => onProductClick(product)}
+                />
+            ))}
         </div>
     );
 }
