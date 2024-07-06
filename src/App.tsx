@@ -14,9 +14,14 @@ interface Product {
 }
 
 const categoryMap = {
-    seasonal: '시즌 메뉴',
-    hotcoffee: '커피(HOT)',
-    coolcoffee: '커피(ICE)'
+    coffee: '커피',
+    coldbrew: '콜드브루',
+    noncoffee: '논커피',
+    teaade: '티·에이드',
+    frappesmoothie: '프라페·블렌디드',
+    food: '푸드',
+    rtd: 'RTD',
+    md: 'MD'
 };
 
 const categories = Object.keys(categoryMap);
