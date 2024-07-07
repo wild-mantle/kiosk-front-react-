@@ -5,14 +5,11 @@ import ProductList from './components/ProductList';
 import SelectedItems from './components/SelectedItems';
 import Timer from './components/Timer';
 import CheckoutButton from './components/CheckoutButton';
+import CustomOptionModal from './components/CustomOptionModal';
+import { Product, CustomOption } from './types';
+import Modal from 'react-modal';
 
-interface Product {
-    id: number;
-    name: string;
-    basePrice: number;
-    description: string;
-    quantity: number;
-}
+Modal.setAppElement('#root');
 
 interface CategoryMap {
     id: number;
@@ -33,20 +30,18 @@ const categories: CategoryMap[] = [
 const App: React.FC = () => {
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [currentCategory, setCurrentCategory] = useState<number>(categories[0].id);
+    const [currentMenuId, setCurrentMenuId] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [currentSelectedProduct, setCurrentSelectedProduct] = useState<Product | null>(null);
     const timerRef = useRef<{ resetTimer: () => void }>(null);
 
     const handleProductClick = (product: Product) => {
-        const existingProduct = selectedProducts.find(p => p.id === product.id);
-        if (existingProduct) {
-            setSelectedProducts(selectedProducts.map(p =>
-                p.id === product.id ? { ...p, quantity: p.quantity + 1 } : p
-            ));
-        } else {
-            setSelectedProducts([...selectedProducts, { ...product, quantity: 1 }]);
-        }
-        if (timerRef.current) {
-            timerRef.current.resetTimer();
-        }
+        setCurrentSelectedProduct({ ...product, quantity: 1, options: [] });
+        setIsModalOpen(true);
+    };
+
+    const handleProductOptionClick = (menuId: number) => {
+        setCurrentMenuId(menuId);
     };
 
     const handleCategoryClick = (categoryId: number) => {
@@ -79,13 +74,79 @@ const App: React.FC = () => {
         }
     };
 
-    const totalPrice = selectedProducts.reduce((total, product) => total + product.basePrice * product.quantity, 0);
+    const handleAddOption = (option: CustomOption) => {
+        if (currentSelectedProduct) {
+            const updatedProduct = {
+                ...currentSelectedProduct,
+                price: currentSelectedProduct.price + option.additionalPrice,
+                options: [...currentSelectedProduct.options, option]
+            };
+            setCurrentSelectedProduct(updatedProduct);
+        }
+    };
+
+    const handleRemoveOption = (option: CustomOption) => {
+        if (currentSelectedProduct) {
+            const updatedProduct = {
+                ...currentSelectedProduct,
+                price: currentSelectedProduct.price - option.additionalPrice,
+                options: currentSelectedProduct.options.filter(opt => opt.id !== option.id)
+            };
+            setCurrentSelectedProduct(updatedProduct);
+        }
+    };
+
+    const areOptionsEqual = (options1: CustomOption[], options2: CustomOption[]) => {
+        if (options1.length !== options2.length) return false;
+        const sortedOptions1 = options1.map(opt => opt.id).sort();
+        const sortedOptions2 = options2.map(opt => opt.id).sort();
+        return sortedOptions1.every((value, index) => value === sortedOptions2[index]);
+    };
+
+    const handleModalClose = () => {
+        if (currentSelectedProduct) {
+            const existingProduct = selectedProducts.find(p =>
+                p.id === currentSelectedProduct.id && areOptionsEqual(p.options, currentSelectedProduct.options)
+            );
+            if (existingProduct) {
+                setSelectedProducts(selectedProducts.map(p =>
+                    p.id === currentSelectedProduct.id && areOptionsEqual(p.options, currentSelectedProduct.options)
+                        ? { ...p, quantity: p.quantity + currentSelectedProduct.quantity }
+                        : p
+                ));
+            } else {
+                setSelectedProducts([...selectedProducts, currentSelectedProduct]);
+            }
+        }
+        setIsModalOpen(false);
+    };
+
+    const handleModalCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    const totalPrice = selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0);
 
     return (
         <div className="app">
             <Header />
             <Category categories={categories} onCategoryClick={handleCategoryClick} />
-            <ProductList categoryId={currentCategory} onProductClick={handleProductClick} />
+            <ProductList
+                categoryId={currentCategory}
+                onProductClick={handleProductClick}
+                onProductOptionClick={handleProductOptionClick}
+            />
+            {currentMenuId && currentSelectedProduct && (
+                <CustomOptionModal
+                    isOpen={isModalOpen}
+                    onRequestClose={handleModalClose}
+                    onRequestCancel={handleModalCancel}
+                    menuId={currentMenuId}
+                    selectedProduct={currentSelectedProduct}
+                    onAddOption={handleAddOption}
+                    onRemoveOption={handleRemoveOption}
+                />
+            )}
             <SelectedItems
                 selectedProducts={selectedProducts}
                 onClear={() => setSelectedProducts([])}

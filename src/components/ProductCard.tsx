@@ -1,11 +1,5 @@
 import React from 'react';
-
-interface Product {
-    id: number;
-    name: string;
-    basePrice: number;
-    description: string;
-}
+import {Product} from '../types'
 
 interface ProductCardProps {
     product: Product;
@@ -16,7 +10,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
     return (
         <div className="product-card" onClick={onClick}>
             <h2>{product.name}</h2>
-            <p>{product.basePrice}원</p>
+            <p>{product.price}원</p>
             <p>{product.description}</p>
         </div>
     );

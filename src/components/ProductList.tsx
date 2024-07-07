@@ -1,21 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProductCard from './ProductCard';
-
-interface Product {
-    id: number;
-    name: string;
-    basePrice: number;
-    description: string;
-    quantity: number;
-}
+import { Product, CustomOption } from '../types';
 
 interface ProductListProps {
     categoryId: number;
     onProductClick: (product: Product) => void;
+    onProductOptionClick: (productId: number) => void;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick }) => {
+const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick, onProductOptionClick }) => {
     const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
@@ -34,7 +28,10 @@ const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick })
                 <ProductCard
                     key={product.id}
                     product={product}
-                    onClick={() => onProductClick(product)}
+                    onClick={() => {
+                        onProductClick(product);
+                        onProductOptionClick(product.id);
+                    }}
                 />
             ))}
         </div>

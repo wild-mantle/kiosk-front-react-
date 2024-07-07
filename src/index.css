@@ -73,18 +73,28 @@ body {
 
 .selected-item {
   display: flex;
+  flex-direction: column;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.item-details {
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
 }
 
 .item-name {
-  flex-grow: 1;
-  padding-right: 1rem;
+  font-weight: bold;
 }
 
-.quantity-controls button {
-  margin-left: 0.5rem;
+.option-name {
+  padding-left: 1rem;
+}
+
+.quantity-controls {
+  display: flex;
+  gap: 0.5rem;
 }
 
 .total-price {
@@ -109,4 +119,33 @@ body {
   border: none;
   padding: 1rem;
   cursor: pointer;
+}
+
+.custom-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.custom-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.custom-option button {
+  margin-left: 0.5rem;
+}
+
+.ReactModal__Overlay {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
+.ReactModal__Content {
+  top: 50% !important;
+  left: 50% !important;
+  right: auto !important;
+  bottom: auto !important;
+  margin-right: -50% !important;
+  transform: translate(-50%, -50%) !important;
 }

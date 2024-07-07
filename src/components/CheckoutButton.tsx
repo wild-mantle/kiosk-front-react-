@@ -1,12 +1,6 @@
 import React from 'react';
 import axios from 'axios';
-
-interface Product {
-    id: number;
-    name: string;
-    basePrice: number;
-    quantity: number;
-}
+import {Product} from '../types'
 
 interface CheckoutButtonProps {
     selectedProducts: Product[];
