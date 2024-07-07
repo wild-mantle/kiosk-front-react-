@@ -9,27 +9,30 @@ import CheckoutButton from './components/CheckoutButton';
 interface Product {
     id: number;
     name: string;
-    price: number;
+    basePrice: number;
     description: string;
     quantity: number;
 }
 
-const categoryMap = {
-    coffee: '커피',
-    coldbrew: '콜드브루',
-    noncoffee: '논커피',
-    teaade: '티·에이드',
-    frappesmoothie: '프라페·블렌디드',
-    food: '푸드',
-    rtd: 'RTD',
-    md: 'MD'
-};
+interface CategoryMap {
+    id: number;
+    name: string;
+}
 
-const categories = Object.keys(categoryMap);
+const categories: CategoryMap[] = [
+    { id: 1, name: '커피' },
+    { id: 2, name: '콜드브루' },
+    { id: 3, name: '논커피' },
+    { id: 4, name: '티·에이드' },
+    { id: 5, name: '프라페·블렌디드' },
+    { id: 6, name: '푸드' },
+    { id: 7, name: 'RTD' },
+    { id: 8, name: 'MD' }
+];
 
 const App: React.FC = () => {
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
-    const [currentCategory, setCurrentCategory] = useState<string>(categories[0]);
+    const [currentCategory, setCurrentCategory] = useState<number>(categories[0].id);
     const timerRef = useRef<{ resetTimer: () => void }>(null);
 
     const handleProductClick = (product: Product) => {
@@ -46,8 +49,8 @@ const App: React.FC = () => {
         }
     };
 
-    const handleCategoryClick = (category: string) => {
-        setCurrentCategory(category);
+    const handleCategoryClick = (categoryId: number) => {
+        setCurrentCategory(categoryId);
         if (timerRef.current) {
             timerRef.current.resetTimer();
         }
@@ -76,11 +79,13 @@ const App: React.FC = () => {
         }
     };
 
+    const totalPrice = selectedProducts.reduce((total, product) => total + product.basePrice * product.quantity, 0);
+
     return (
         <div className="app">
             <Header />
-            <Category categories={categories} categoryMap={categoryMap} onCategoryClick={handleCategoryClick} />
-            <ProductList category={currentCategory} onProductClick={handleProductClick} />
+            <Category categories={categories} onCategoryClick={handleCategoryClick} />
+            <ProductList categoryId={currentCategory} onProductClick={handleProductClick} />
             <SelectedItems
                 selectedProducts={selectedProducts}
                 onClear={() => setSelectedProducts([])}
@@ -88,7 +93,7 @@ const App: React.FC = () => {
                 onDecreaseQuantity={handleDecreaseQuantity}
             />
             <Timer ref={timerRef} />
-            <CheckoutButton />
+            <CheckoutButton selectedProducts={selectedProducts} totalPrice={totalPrice} />
         </div>
     );
 }

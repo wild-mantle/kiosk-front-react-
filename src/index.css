@@ -66,6 +66,33 @@ body {
   padding: 1rem;
 }
 
+.selected-items ul {
+  list-style: none;
+  padding: 0;
+}
+
+.selected-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+}
+
+.item-name {
+  flex-grow: 1;
+  padding-right: 1rem;
+}
+
+.quantity-controls button {
+  margin-left: 0.5rem;
+}
+
+.total-price {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
 .timer {
   grid-area: timer;
   border: 1px solid #ddd;
