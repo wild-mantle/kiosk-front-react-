@@ -5,54 +5,156 @@ import ProductList from './components/ProductList';
 import SelectedItems from './components/SelectedItems';
 import Timer from './components/Timer';
 import CheckoutButton from './components/CheckoutButton';
+import CustomOptionModal from './components/CustomOptionModal';
+import { Product, CustomOption } from './types';
+import Modal from 'react-modal';
 
-interface Product {
+Modal.setAppElement('#root');
+
+interface CategoryMap {
     id: number;
     name: string;
-    price: number;
-    description: string;
 }
 
-const categoryMap = {
-    coffee: '커피',
-    coldbrew: '콜드브루',
-    noncoffee: '논커피',
-    teaade: '티·에이드',
-    frappesmoothie: '프라페·블렌디드',
-    food: '푸드',
-    rtd: 'RTD',
-    md: 'MD'
-};
-
-const categories = Object.keys(categoryMap);
+const categories: CategoryMap[] = [
+    { id: 1, name: '커피' },
+    { id: 2, name: '콜드브루' },
+    { id: 3, name: '논커피' },
+    { id: 4, name: '티·에이드' },
+    { id: 5, name: '프라페·블렌디드' },
+    { id: 6, name: '푸드' },
+    { id: 7, name: 'RTD' },
+    { id: 8, name: 'MD' }
+];
 
 const App: React.FC = () => {
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
-    const [currentCategory, setCurrentCategory] = useState<string>(categories[0]);
+    const [currentCategory, setCurrentCategory] = useState<number>(categories[0].id);
+    const [currentMenuId, setCurrentMenuId] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [currentSelectedProduct, setCurrentSelectedProduct] = useState<Product | null>(null);
     const timerRef = useRef<{ resetTimer: () => void }>(null);
 
     const handleProductClick = (product: Product) => {
-        setSelectedProducts([...selectedProducts, product]);
+        setCurrentSelectedProduct({ ...product, quantity: 1, options: [] });
+        setIsModalOpen(true);
+    };
+
+    const handleProductOptionClick = (menuId: number) => {
+        setCurrentMenuId(menuId);
+    };
+
+    const handleCategoryClick = (categoryId: number) => {
+        setCurrentCategory(categoryId);
         if (timerRef.current) {
             timerRef.current.resetTimer();
         }
     };
 
-    const handleCategoryClick = (category: string) => {
-        setCurrentCategory(category);
+    const handleIncreaseQuantity = (productId: number) => {
+        setSelectedProducts(selectedProducts.map(p =>
+            p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
+        ));
         if (timerRef.current) {
             timerRef.current.resetTimer();
         }
     };
+
+    const handleDecreaseQuantity = (productId: number) => {
+        const product = selectedProducts.find(p => p.id === productId);
+        if (product && product.quantity > 1) {
+            setSelectedProducts(selectedProducts.map(p =>
+                p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
+            ));
+        } else {
+            setSelectedProducts(selectedProducts.filter(p => p.id !== productId));
+        }
+        if (timerRef.current) {
+            timerRef.current.resetTimer();
+        }
+    };
+
+    const handleAddOption = (option: CustomOption) => {
+        if (currentSelectedProduct) {
+            const updatedProduct = {
+                ...currentSelectedProduct,
+                price: currentSelectedProduct.price + option.additionalPrice,
+                options: [...currentSelectedProduct.options, option]
+            };
+            setCurrentSelectedProduct(updatedProduct);
+        }
+    };
+
+    const handleRemoveOption = (option: CustomOption) => {
+        if (currentSelectedProduct) {
+            const updatedProduct = {
+                ...currentSelectedProduct,
+                price: currentSelectedProduct.price - option.additionalPrice,
+                options: currentSelectedProduct.options.filter(opt => opt.id !== option.id)
+            };
+            setCurrentSelectedProduct(updatedProduct);
+        }
+    };
+
+    const areOptionsEqual = (options1: CustomOption[], options2: CustomOption[]) => {
+        if (options1.length !== options2.length) return false;
+        const sortedOptions1 = options1.map(opt => opt.id).sort();
+        const sortedOptions2 = options2.map(opt => opt.id).sort();
+        return sortedOptions1.every((value, index) => value === sortedOptions2[index]);
+    };
+
+    const handleModalClose = () => {
+        if (currentSelectedProduct) {
+            const existingProduct = selectedProducts.find(p =>
+                p.id === currentSelectedProduct.id && areOptionsEqual(p.options, currentSelectedProduct.options)
+            );
+            if (existingProduct) {
+                setSelectedProducts(selectedProducts.map(p =>
+                    p.id === currentSelectedProduct.id && areOptionsEqual(p.options, currentSelectedProduct.options)
+                        ? { ...p, quantity: p.quantity + currentSelectedProduct.quantity }
+                        : p
+                ));
+            } else {
+                setSelectedProducts([...selectedProducts, currentSelectedProduct]);
+            }
+        }
+        setIsModalOpen(false);
+    };
+
+    const handleModalCancel = () => {
+        setIsModalOpen(false);
+    };
+
+    const totalPrice = selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0);
 
     return (
         <div className="app">
             <Header />
-            <Category categories={categories} categoryMap={categoryMap} onCategoryClick={handleCategoryClick} />
-            <ProductList category={currentCategory} onProductClick={handleProductClick} />
-            <SelectedItems selectedProducts={selectedProducts} onClear={() => setSelectedProducts([])} />
+            <Category categories={categories} onCategoryClick={handleCategoryClick} />
+            <ProductList
+                categoryId={currentCategory}
+                onProductClick={handleProductClick}
+                onProductOptionClick={handleProductOptionClick}
+            />
+            {currentMenuId && currentSelectedProduct && (
+                <CustomOptionModal
+                    isOpen={isModalOpen}
+                    onRequestClose={handleModalClose}
+                    onRequestCancel={handleModalCancel}
+                    menuId={currentMenuId}
+                    selectedProduct={currentSelectedProduct}
+                    onAddOption={handleAddOption}
+                    onRemoveOption={handleRemoveOption}
+                />
+            )}
+            <SelectedItems
+                selectedProducts={selectedProducts}
+                onClear={() => setSelectedProducts([])}
+                onIncreaseQuantity={handleIncreaseQuantity}
+                onDecreaseQuantity={handleDecreaseQuantity}
+            />
             <Timer ref={timerRef} />
-            <CheckoutButton />
+            <CheckoutButton selectedProducts={selectedProducts} totalPrice={totalPrice} />
         </div>
     );
 }
