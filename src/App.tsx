@@ -27,7 +27,7 @@ export interface CustomOptions {
 
 
 const App: React.FC = () => {
-    const [selectedMenuItems, setSelectedMenuItems] = useState<Menu[]>([]);
+    const [selectedMenuItems, setSelectedMenuItems] = useState<{ menu: Menu, options: CustomOptions }[]>([]);
     const [currentCategory, setCurrentCategory] = useState<string>('');
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [activeMenu, setActiveMenu] = useState<Menu | null>(null);
@@ -56,11 +56,11 @@ const App: React.FC = () => {
 
     const handleSaveOptions = (options: CustomOptions) => {
         setCustomOptions(options);
-        // 여기서 필요한 로직을 추가하세요. 예를 들어, 주문에 추가하거나 서버에 저장.
-    };
-
-    const handleAddToOrder = (menuItem: Menu) => {
-        setSelectedMenuItems([...selectedMenuItems, menuItem]);
+        // 로그에 저장된 내용을 출력합니다.
+        if (activeMenu) {
+            console.log("Added to cart:", { menu: activeMenu, options });
+            setSelectedMenuItems([...selectedMenuItems, { menu: activeMenu, options }]);
+        }
         handleCloseModal();
     };
 
@@ -69,7 +69,7 @@ const App: React.FC = () => {
             <Header />
             <Category onCategoryClick={handleCategoryClick} />
             {currentCategory && <MenuList category={currentCategory} onMenuItemClick={handleMenuItemsClick} />}
-            <SelectedMenuItems selectedMenuItems={selectedMenuItems} onClear={() => setSelectedMenuItems([])} />
+            <SelectedMenuItems selectedMenuItems={selectedMenuItems.map(item => item.menu)} onClear={() => setSelectedMenuItems([])} />
             <Timer ref={timerRef} />
             <CheckoutButton />
 
