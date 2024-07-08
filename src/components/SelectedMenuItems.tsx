@@ -5,6 +5,8 @@ interface Menu {
     name: string;
     basePrice: number;
     description: string;
+    image: string;
+    category: string;
 }
 
 interface SelectedMenuItemsProps {
