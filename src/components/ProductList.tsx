@@ -1,33 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import ProductCard from './ProductCard';
-
-interface Product {
-    id: number;
-    name: string;
-    price: number;
-    description: string;
-}
+import { Product, CustomOption } from '../types';
 
 interface ProductListProps {
-    category: string;
+    categoryId: number;
     onProductClick: (product: Product) => void;
+    onProductOptionClick: (productId: number) => void;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ category, onProductClick }) => {
+const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick, onProductOptionClick }) => {
     const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
-        console.log(`Fetching products for category: ${category}`);
-        axios.get(`/api/products/category/${category}`)
+        axios.get(`http://localhost:8080/api/menus/${categoryId}`)
             .then(response => {
-                console.log('Response data:', response.data);
                 setProducts(response.data);
             })
             .catch(error => {
                 console.error('There was an error fetching the products!', error);
             });
-    }, [category]);
+    }, [categoryId]);
 
     return (
         <div className="product-list">
@@ -35,7 +28,10 @@ const ProductList: React.FC<ProductListProps> = ({ category, onProductClick }) =
                 <ProductCard
                     key={product.id}
                     product={product}
-                    onClick={() => onProductClick(product)}
+                    onClick={() => {
+                        onProductClick(product);
+                        onProductOptionClick(product.id);
+                    }}
                 />
             ))}
         </div>
