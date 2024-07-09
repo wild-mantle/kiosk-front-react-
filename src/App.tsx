@@ -6,7 +6,8 @@ import SelectedItems from './components/SelectedItems';
 import Timer from './components/Timer';
 import CheckoutButton from './components/CheckoutButton';
 import CustomOptionModal from './components/CustomOptionModal';
-import { Product, CustomOption } from './types';
+import PaymentModal from './components/PaymentModel'
+import { Product, CustomOption, OrderModuleDTO, PaymentStatus } from './types';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
@@ -32,6 +33,7 @@ const App: React.FC = () => {
     const [currentCategory, setCurrentCategory] = useState<number>(categories[0].id);
     const [currentMenuId, setCurrentMenuId] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
     const [currentSelectedProduct, setCurrentSelectedProduct] = useState<Product | null>(null);
     const timerRef = useRef<{ resetTimer: () => void }>(null);
 
@@ -125,6 +127,15 @@ const App: React.FC = () => {
         setIsModalOpen(false);
     };
 
+    const handleCheckoutClick = (orderData: OrderModuleDTO) => {
+        console.log('Checkout data:', orderData);
+        setIsPaymentModalOpen(true);
+    };
+
+    const handlePaymentModalClose = () => {
+        setIsPaymentModalOpen(false);
+    };
+
     const totalPrice = selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0);
 
     return (
@@ -154,9 +165,27 @@ const App: React.FC = () => {
                 onDecreaseQuantity={handleDecreaseQuantity}
             />
             <Timer ref={timerRef} />
-            <CheckoutButton selectedProducts={selectedProducts} totalPrice={totalPrice} />
+            <CheckoutButton
+                selectedProducts={selectedProducts}
+                totalPrice={totalPrice}
+                onCheckoutClick={handleCheckoutClick}
+            />
+            <PaymentModal
+                isOpen={isPaymentModalOpen}
+                onRequestClose={handlePaymentModalClose}
+                orderData={{
+                    id: 1,
+                    price: totalPrice,
+                    storeName: '1달러샵',
+                    email: 'customer@example.com',
+                    address: '서울시 강남구',
+                    status: PaymentStatus.PENDING,
+                    paymentUid: '',
+                    orderUid: `order_${new Date().getTime()}`,
+                }}
+            />
         </div>
     );
-}
+};
 
 export default App;

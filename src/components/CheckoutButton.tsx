@@ -1,24 +1,27 @@
 import React from 'react';
-import axios from 'axios';
-import {Product} from '../types'
+import { Product, OrderModuleDTO, PaymentStatus } from '../types';
 
 interface CheckoutButtonProps {
     selectedProducts: Product[];
     totalPrice: number;
+    onCheckoutClick: (orderData: OrderModuleDTO) => void;
 }
 
-const CheckoutButton: React.FC<CheckoutButtonProps> = ({ selectedProducts, totalPrice }) => {
-    const handleCheckout = async () => {
-        try {
-            const response = await axios.post('http://localhost:8080/test/payment', {
-                products: selectedProducts,
-                totalPrice: totalPrice
-            });
-            alert('Payment Successful!');
-        } catch (error) {
-            console.error('There was an error processing the payment!', error);
-            alert('Payment Failed.');
-        }
+const CheckoutButton: React.FC<CheckoutButtonProps> = ({ selectedProducts, totalPrice, onCheckoutClick }) => {
+    const handleCheckout = () => {
+        const orderData: OrderModuleDTO = {
+            id: 1, // 이 값을 적절하게 설정하세요
+            price: totalPrice,
+            storeName: '1달러샵',
+            email: 'customer@example.com',
+            address: '서울시 강남구',
+            status: PaymentStatus.PENDING,
+            paymentUid: '',
+            orderUid: `order_${new Date().getTime()}`,
+        };
+
+        console.log('Checkout data:', orderData);
+        onCheckoutClick(orderData);
     };
 
     return (
@@ -26,6 +29,6 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({ selectedProducts, total
             결제하기
         </button>
     );
-}
+};
 
 export default CheckoutButton;
