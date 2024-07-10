@@ -14,10 +14,9 @@ export interface CustomOption {
 }
 
 export enum PaymentStatus {
-    PENDING = 'PENDING',
-    COMPLETED = 'COMPLETED',
-    FAILED = 'FAILED',
-    // 필요한 다른 상태들 추가
+    READY = 'READY',
+    OK = 'OK',
+    CANCEL = 'CANCEL',
 }
 
 

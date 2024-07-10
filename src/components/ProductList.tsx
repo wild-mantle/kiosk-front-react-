@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import ProductCard from './ProductCard';
-import { Product, CustomOption } from '../types';
+import axios from '../api/axiosConfig';
+import { Product } from '../types';
 
 interface ProductListProps {
     categoryId: number;
     onProductClick: (product: Product) => void;
-    onProductOptionClick: (productId: number) => void;
+    onProductOptionClick: (menuId: number) => void;
 }
 
 const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick, onProductOptionClick }) => {
@@ -23,19 +22,10 @@ const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick, o
     }, [categoryId]);
 
     return (
-        <div className="product-list">
-            {products.map(product => (
-                <ProductCard
-                    key={product.id}
-                    product={product}
-                    onClick={() => {
-                        onProductClick(product);
-                        onProductOptionClick(product.id);
-                    }}
-                />
-            ))}
+        <div>
+            {/* 제품 리스트 렌더링 로직 */}
         </div>
     );
-}
+};
 
 export default ProductList;

@@ -15,7 +15,7 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({ selectedProducts, total
             storeName: '1달러샵',
             email: 'customer@example.com',
             address: '서울시 강남구',
-            status: PaymentStatus.PENDING,
+            status: PaymentStatus.READY,
             paymentUid: '',
             orderUid: `order_${new Date().getTime()}`,
         };
