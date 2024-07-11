@@ -8,29 +8,24 @@ interface Option {
     required: boolean;
 }
 
-/**
- * OptionManagement 컴포넌트
- * - 옵션 추가 및 편집 기능을 포함
- */
 const OptionManagement: React.FC = () => {
     const [options, setOptions] = useState<Option[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [newOptionName, setNewOptionName] = useState('');
     const [newOptionItems, setNewOptionItems] = useState<{ name: string, price: number }[]>([]);
     const [newOptionRequired, setNewOptionRequired] = useState(false);
+    const [newItemName, setNewItemName] = useState('');
+    const [newItemPrice, setNewItemPrice] = useState(0);
     const apiHost = "http://localhost:8080"
 
-    // 서버에서 옵션 목록 가져오기
     useEffect(() => {
-        axios.get(`${apiHost}/api/menus/select-custom-option`)
+        axios.get(`${apiHost}/api/menus/all-custom-options`)
             .then(response => setOptions(response.data))
             .catch(error => console.error('Error fetching options:', error));
     }, []);
 
-
-    // 옵션 추가
     const handleAddOption = () => {
-        axios.post(`${apiHost}/api/options`, { name: newOptionName, items: newOptionItems, required: newOptionRequired })
+        axios.post(`${apiHost}/api/menus/add-custom-option`, { name: newOptionName, items: newOptionItems, required: newOptionRequired })
             .then(response => {
                 setOptions([...options, response.data]);
                 setShowAddModal(false);
@@ -41,11 +36,16 @@ const OptionManagement: React.FC = () => {
             .catch(error => console.error('Error adding option:', error));
     };
 
-    // 옵션 삭제
     const handleDeleteOption = (id: number) => {
-        axios.delete(`${apiHost}/api/options/${id}`)
+        axios.delete(`${apiHost}/api/menus/delete-custom-option/${id}`)
             .then(() => setOptions(options.filter(option => option.id !== id)))
             .catch(error => console.error('Error deleting option:', error));
+    };
+
+    const handleAddItemToOption = () => {
+        setNewOptionItems([...newOptionItems, { name: newItemName, price: newItemPrice }]);
+        setNewItemName('');
+        setNewItemPrice(0);
     };
 
     return (
@@ -61,7 +61,37 @@ const OptionManagement: React.FC = () => {
                         onChange={(e) => setNewOptionName(e.target.value)}
                         placeholder="옵션 이름"
                     />
-                    {/* 여기에서 옵션 항목 추가 폼 구현 */}
+                    <div>
+                        <h4>옵션 항목 추가</h4>
+                        <input
+                            type="text"
+                            value={newItemName}
+                            onChange={(e) => setNewItemName(e.target.value)}
+                            placeholder="항목 이름"
+                        />
+                        <input
+                            type="number"
+                            value={newItemPrice}
+                            onChange={(e) => setNewItemPrice(parseFloat(e.target.value))}
+                            placeholder="항목 가격"
+                        />
+                        <button onClick={handleAddItemToOption}>항목 추가</button>
+                    </div>
+                    <div>
+                        {newOptionItems.map((item, index) => (
+                            <div key={index}>
+                                <span>{item.name} - {item.price}원</span>
+                            </div>
+                        ))}
+                    </div>
+                    <label>
+                        필수 여부
+                        <input
+                            type="checkbox"
+                            checked={newOptionRequired}
+                            onChange={(e) => setNewOptionRequired(e.target.checked)}
+                        />
+                    </label>
                     <button onClick={handleAddOption}>저장</button>
                     <button onClick={() => setShowAddModal(false)}>취소</button>
                 </div>
