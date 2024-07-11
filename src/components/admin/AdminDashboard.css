@@ -1,0 +1,74 @@
+.admin-dashboard {
+    display: flex;
+    height: 100vh;
+}
+
+.admin-sidebar {
+    width: 200px;
+    background-color: #f8f8f8;
+    padding: 20px;
+    border-right: 1px solid #ccc;
+}
+
+.admin-sidebar ul {
+    list-style: none;
+    padding: 0;
+}
+
+.admin-sidebar li {
+    margin-bottom: 10px;
+}
+
+.admin-sidebar a {
+    text-decoration: none;
+    color: #333;
+}
+
+.admin-content {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    z-index: 1000;
+}
+
+.modal input {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 8px;
+}
+
+.modal button {
+    margin-right: 10px;
+    padding: 8px 16px;
+}
+
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 10px;
+    background-color: #f9f9f9;
+}
+
+li button {
+    margin-left: 10px;
+    padding: 5px 10px;
+}
