@@ -26,6 +26,7 @@ const SelectedItems: React.FC<SelectedItemsProps> = ({ selectedProducts, onClear
     return (
         <div className="selected-items">
             <h2>Selected Products</h2>
+
             <ul>
                 {selectedProducts.map((product, index) => (
                     <li key={index} className="selected-item">

@@ -1,4 +1,3 @@
-// src/components/Home.tsx
 import React, { useState, useRef } from 'react';
 import Header from './Header';
 import Category from './Category';
@@ -8,7 +7,7 @@ import Timer from './Timer';
 import CheckoutButton from './CheckoutButton';
 import CustomOptionModal from './CustomOptionModal';
 import PaymentModal from './PaymentModel';
-import { Product, CustomOption, OrderModuleDTO, PaymentStatus } from '../types';
+import { Product, CustomOption, OrderModuleDTO } from '../types';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
@@ -37,10 +36,6 @@ const Home: React.FC = () => {
     const handleProductClick = (product: Product) => {
         setCurrentSelectedProduct({ ...product, quantity: 1, options: [] });
         setIsModalOpen(true);
-    };
-
-    const handleProductOptionClick = (menuId: number) => {
-        setCurrentMenuId(menuId);
     };
 
     const handleCategoryClick = (categoryId: number) => {
@@ -143,7 +138,6 @@ const Home: React.FC = () => {
             <ProductList
                 categoryId={currentCategory}
                 onProductClick={handleProductClick}
-                onProductOptionClick={handleProductOptionClick}
             />
             {currentMenuId && currentSelectedProduct && (
                 <CustomOptionModal

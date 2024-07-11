@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import axios from '../api/axiosConfig';
 import { Product } from '../types';
+import ProductCard from './ProductCard';
 
 interface ProductListProps {
     categoryId: number;
     onProductClick: (product: Product) => void;
-    onProductOptionClick: (menuId: number) => void;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick, onProductOptionClick }) => {
+const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick }) => {
     const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
@@ -22,8 +22,10 @@ const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick, o
     }, [categoryId]);
 
     return (
-        <div>
-            {/* 제품 리스트 렌더링 로직 */}
+        <div className="product-list">
+            {products.map(product => (
+                <ProductCard key={product.id} product={product} onClick={() => onProductClick(product)} />
+            ))}
         </div>
     );
 };
