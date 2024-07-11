@@ -1,15 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import axios from '../api/axiosConfig';
+import { Product } from '../types';
 import ProductCard from './ProductCard';
-import { Product, CustomOption } from '../types';
 
 interface ProductListProps {
     categoryId: number;
     onProductClick: (product: Product) => void;
-    onProductOptionClick: (productId: number) => void;
 }
 
-const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick, onProductOptionClick }) => {
+const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick }) => {
     const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
@@ -25,17 +24,10 @@ const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick, o
     return (
         <div className="product-list">
             {products.map(product => (
-                <ProductCard
-                    key={product.id}
-                    product={product}
-                    onClick={() => {
-                        onProductClick(product);
-                        onProductOptionClick(product.id);
-                    }}
-                />
+                <ProductCard key={product.id} product={product} onClick={() => onProductClick(product)} />
             ))}
         </div>
     );
-}
+};
 
 export default ProductList;
