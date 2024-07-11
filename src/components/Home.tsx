@@ -35,6 +35,7 @@ const Home: React.FC = () => {
 
     const handleProductClick = (product: Product) => {
         setCurrentSelectedProduct({ ...product, quantity: 1, options: [] });
+        setCurrentMenuId(product.id); // 현재 메뉴 ID 설정
         setIsModalOpen(true);
     };
 

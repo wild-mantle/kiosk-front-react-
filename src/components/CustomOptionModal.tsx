@@ -35,7 +35,6 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
             });
     }, [menuId]);
 
-    // 모달이 열릴 때마다 선택된 옵션의 수량 초기화
     useEffect(() => {
         if (isOpen) {
             setSelectedOptions({});
