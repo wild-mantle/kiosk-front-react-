@@ -18,10 +18,11 @@ const OptionManagement: React.FC = () => {
     const [newOptionName, setNewOptionName] = useState('');
     const [newOptionItems, setNewOptionItems] = useState<{ name: string, price: number }[]>([]);
     const [newOptionRequired, setNewOptionRequired] = useState(false);
+    const apiHost = "http://localhost:8080"
 
     // 서버에서 옵션 목록 가져오기
     useEffect(() => {
-        axios.get('/api/menus/select-custom-option')
+        axios.get(`${apiHost}/api/menus/select-custom-option`)
             .then(response => setOptions(response.data))
             .catch(error => console.error('Error fetching options:', error));
     }, []);
@@ -29,7 +30,7 @@ const OptionManagement: React.FC = () => {
 
     // 옵션 추가
     const handleAddOption = () => {
-        axios.post('/api/options', { name: newOptionName, items: newOptionItems, required: newOptionRequired })
+        axios.post(`${apiHost}/api/options`, { name: newOptionName, items: newOptionItems, required: newOptionRequired })
             .then(response => {
                 setOptions([...options, response.data]);
                 setShowAddModal(false);
@@ -42,7 +43,7 @@ const OptionManagement: React.FC = () => {
 
     // 옵션 삭제
     const handleDeleteOption = (id: number) => {
-        axios.delete(`/api/options/${id}`)
+        axios.delete(`${apiHost}/api/options/${id}`)
             .then(() => setOptions(options.filter(option => option.id !== id)))
             .catch(error => console.error('Error deleting option:', error));
     };
