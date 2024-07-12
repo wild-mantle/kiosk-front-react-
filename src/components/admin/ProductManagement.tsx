@@ -27,6 +27,7 @@ const ProductManagement: React.FC = () => {
     const [options, setOptions] = useState<Option[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [newProduct, setNewProduct] = useState<Product>({ id: 0, name: '', price: 0, category: '', options: [], soldOut: false, tags: '' });
     const [editingProductId, setEditingProductId] = useState<number | null>(null);
     const apiHost = "http://localhost:8080";
@@ -35,7 +36,7 @@ const ProductManagement: React.FC = () => {
         axios.get(`${apiHost}/api/menus/all`)
             .then(response => setProducts(response.data))
             .catch(error => console.error('Error fetching products:', error));
-        axios.get(`${apiHost}/api/menus/all-categories`)
+        axios.get(`${apiHost}/admin/category/all`)
             .then(response => setCategories(response.data))
             .catch(error => console.error('Error fetching categories:', error));
         axios.get(`${apiHost}/api/menus/all-custom-options`)
@@ -44,7 +45,7 @@ const ProductManagement: React.FC = () => {
     }, []);
 
     const handleAddProduct = () => {
-        axios.post(`${apiHost}/api/menus/add`, newProduct)
+        axios.post(`${apiHost}/admin/menu/add_rest`, newProduct)
             .then(response => {
                 setProducts([...products, response.data]);
                 setShowAddModal(false);
@@ -71,9 +72,30 @@ const ProductManagement: React.FC = () => {
         setShowEditModal(true);
     };
 
+    const filteredProducts = selectedCategory
+        ? products.filter(product => product.category === selectedCategory)
+        : products;
+
     return (
         <div>
             <h2>상품 관리</h2>
+            <div>
+                {categories.map(category => (
+                    <button
+                        key={category.id}
+                        onClick={() => setSelectedCategory(category.name)}
+                        style={{ fontWeight: selectedCategory === category.name ? 'bold' : 'normal' }}
+                    >
+                        {category.name}
+                    </button>
+                ))}
+                <button
+                    onClick={() => setSelectedCategory(null)}
+                    style={{ fontWeight: selectedCategory === null ? 'bold' : 'normal' }}
+                >
+                    전체
+                </button>
+            </div>
             <button onClick={() => setShowAddModal(true)}>+ 상품 추가</button>
             {showAddModal && (
                 <div className="modal">
@@ -204,7 +226,7 @@ const ProductManagement: React.FC = () => {
                 </div>
             )}
             <ul>
-                {products.map(product => (
+                {filteredProducts.map(product => (
                     <li key={product.id}>
                         <span>{product.name}</span>
                         <button onClick={() => openEditModal(product)}>수정</button>
