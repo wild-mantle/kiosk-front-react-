@@ -1,0 +1,35 @@
+import React from 'react';
+import { Link, Routes, Route } from 'react-router-dom';
+import CategoryManagement from './CategoryManagement';
+import OptionManagement from './OptionManagement';
+import ProductManagement from './ProductManagement';
+import './AdminDashboard.css';
+
+/**
+ * AdminDashboard 컴포넌트
+ * - 관리자 대시보드
+ * - 좌측 사이드바에 카테고리, 옵션, 상품 관리 탭을 포함
+ * - 각 탭 클릭 시 해당 관리 페이지로 이동
+ */
+const AdminDashboard: React.FC = () => {
+    return (
+        <div className="admin-dashboard">
+            <nav className="admin-sidebar">
+                <ul>
+                    <li><Link to="/admin/category">카테고리 관리</Link></li>
+                    <li><Link to="/admin/option">옵션 관리</Link></li>
+                    <li><Link to="/admin/product">상품 관리</Link></li>
+                </ul>
+            </nav>
+            <div className="admin-content">
+                <Routes>
+                    <Route path="category" element={<CategoryManagement />} />
+                    <Route path="option" element={<OptionManagement />} />
+                    <Route path="product" element={<ProductManagement />} />
+                </Routes>
+            </div>
+        </div>
+    );
+};
+
+export default AdminDashboard;
