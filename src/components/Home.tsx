@@ -1,4 +1,6 @@
-import React, { useState, useRef } from 'react';
+import React, { useContext, useState, useRef } from 'react';
+import { AuthContext } from '../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Category from './Category';
 import ProductList from './ProductList';
@@ -6,7 +8,6 @@ import SelectedItems from './SelectedItems';
 import Timer from './Timer';
 import CheckoutButton from './CheckoutButton';
 import CustomOptionModal from './CustomOptionModal';
-import PaymentModal from './PaymentModel';
 import { Product, CustomOption, OrderModuleDTO } from '../types';
 import Modal from 'react-modal';
 
@@ -24,14 +25,15 @@ const categories = [
 ];
 
 const Home: React.FC = () => {
+    const authContext = useContext(AuthContext);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [currentCategory, setCurrentCategory] = useState<number>(categories[0].id);
     const [currentMenuId, setCurrentMenuId] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
     const [currentSelectedProduct, setCurrentSelectedProduct] = useState<Product | null>(null);
     const [orderData, setOrderData] = useState<OrderModuleDTO | null>(null);
     const timerRef = useRef<{ resetTimer: () => void }>(null);
+    const navigate = useNavigate();
 
     const handleProductClick = (product: Product) => {
         setCurrentSelectedProduct({ ...product, quantity: 1, options: [] });
@@ -121,13 +123,8 @@ const Home: React.FC = () => {
     };
 
     const handleCheckoutClick = (orderData: OrderModuleDTO) => {
-        setOrderData(orderData);  // orderData 상태 설정
-        setIsPaymentModalOpen(true);  // 결제 모달을 열기 위해 상태를 true로 설정
-    };
-
-    const handlePaymentModalClose = () => {
-        setIsPaymentModalOpen(false);
-        setOrderData(null);  // orderData 초기화
+        setOrderData(orderData);
+        navigate('/payment', { state: { orderData, selectedProducts } });
     };
 
     const totalPrice = selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0);
@@ -163,13 +160,6 @@ const Home: React.FC = () => {
                 totalPrice={totalPrice}
                 onCheckoutClick={handleCheckoutClick}
             />
-            {orderData && (
-                <PaymentModal
-                    isOpen={isPaymentModalOpen}
-                    onRequestClose={handlePaymentModalClose}
-                    orderData={orderData}  // orderData 상태를 PaymentModal에 전달
-                />
-            )}
         </div>
     );
 };

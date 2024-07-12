@@ -1,0 +1,94 @@
+.custom-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 80%; /* 너비를 80%로 설정 */
+    height: 80%; /* 높이를 80%로 설정 */
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: auto; /* 내용이 많을 경우 스크롤 가능하도록 설정 */
+}
+
+.custom-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* 반투명 검정 배경 */
+}
+
+.modal-content {
+    margin-bottom: 20px; /* h2와 키보드 사이의 간격 설정 */
+    text-align: center; /* 중앙 정렬 */
+}
+
+.modal-close-button {
+    width: 100%; /* 닫기 버튼의 너비를 100%로 설정 */
+    margin-top: 20px; /* 닫기 버튼과 키보드 사이의 간격 설정 */
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center; /* 중앙 정렬 */
+}
+.custom-modal {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    right: auto;
+    bottom: auto;
+    margin-right: -50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    width: 80%; /* 넓이를 더 크게 설정 */
+    max-width: 600px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.custom-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    text-align: center;
+}
+
+.custom-input {
+    width: 95%;
+    padding: 15px;
+    font-size: 1.2em;
+    margin-bottom: 20px; /* 입력 필드와 키보드 사이의 간격 */
+    border: 2px solid #ddd;
+    border-radius: 5px;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: border-color 0.3s;
+}
+
+.custom-input:focus {
+    border-color: #0066cc;
+    outline: none;
+}
+
+.modal-close-button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 1.1em;
+    border: none;
+    background-color: #0066cc;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.modal-close-button:hover {
+    background-color: #005bb5;
+}
