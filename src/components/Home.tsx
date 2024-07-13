@@ -132,6 +132,9 @@ const Home: React.FC = () => {
     return (
         <div className="app">
             <Header />
+            <div>
+                <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
+            </div>
             <Category categories={categories} onCategoryClick={handleCategoryClick} />
             <ProductList
                 categoryId={currentCategory}

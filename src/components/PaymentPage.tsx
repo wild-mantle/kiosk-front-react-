@@ -1,3 +1,4 @@
+// src/components/PaymentPage.tsx
 import React, { useState, useEffect, useContext } from 'react';
 import axios, { AxiosError } from 'axios';
 import { OrderModuleDTO, Product } from '../types';
@@ -80,16 +81,16 @@ const PaymentPage: React.FC = () => {
                             // 결제 성공 시 주문 생성
                             const order = {
                                 customer: {
-                                    customerID: 1, // 실제 고객 ID 사용
-                                    customerName: 'Test Customer',
-                                    customerPhone: '010-1234-5678',
-                                    points: 100,
+                                    customerID: authContext?.customerInfo?.id || 1,
+                                    customerName: authContext?.customerInfo?.name || 'not registered',
+                                    customerPhone: authContext?.customerInfo?.phoneNumber || 'none',
+                                    points: authContext?.customerInfo?.points || 0,
                                     email: orderData.email,
                                     address: orderData.address
                                 },
                                 kiosk: {
-                                    id: 1, // 여기도 값을 받아와야함
-                                    number: 'kiosk1',
+                                    id: authContext?.kioskInfo?.id,
+                                    number: authContext?.kioskInfo?.number,
                                     store: { storeID: authContext?.storeInfo?.id } // Store 객체를 적절히 설정해야 함
                                 },
                                 dateTime: new Date(),
@@ -181,6 +182,14 @@ const PaymentPage: React.FC = () => {
                 if (response.data.valid) {
                     setIsValid(true);
                     setPoints(response.data.points);
+                    authContext?.setCustomerInfo({
+                        id: response.data.customer.id,
+                        name: response.data.customer.name,
+                        phoneNumber: response.data.customer.phoneNumber,
+                        points: response.data.customer.points,
+                        email: response.data.customer.email,
+                        address: response.data.customer.address
+                    });
                 } else {
                     alert('비밀번호가 유효하지 않습니다.');
                 }
@@ -197,6 +206,14 @@ const PaymentPage: React.FC = () => {
                 });
                 console.log('Response data:', response.data); // 디버깅
                 alert('고객이 등록되었습니다!');
+                authContext?.setCustomerInfo({
+                    id: response.data.id,
+                    name: response.data.name,
+                    phoneNumber: response.data.phoneNumber,
+                    points: response.data.points,
+                    email: response.data.email,
+                    address: response.data.address
+                });
                 handlePasswordModalClose();
             } catch (error) {
                 console.error(error);
@@ -221,16 +238,16 @@ const PaymentPage: React.FC = () => {
         console.log('현재 주문 데이터:', orderData);
         const order = {
             customer: {
-                customerID: 1, // 실제 고객 ID 사용
-                customerName: 'Test Customer',
-                customerPhone: '010-1234-5678',
-                points: 100,
+                customerID: authContext?.customerInfo?.id || 1,
+                customerName: authContext?.customerInfo?.name || 'not registered',
+                customerPhone: authContext?.customerInfo?.phoneNumber || 'none',
+                points: authContext?.customerInfo?.points || 0,
                 email: orderData.email,
                 address: orderData.address
             },
             kiosk: {
-                id: 1, // 실제 키오스크 ID 사용
-                number: 'Kiosk-01',
+                id: authContext?.kioskInfo?.id,
+                number: authContext?.kioskInfo?.number,
                 store: { storeID: authContext?.storeInfo?.id } // Store 객체를 적절히 설정해야 함
             },
             dateTime: new Date(),

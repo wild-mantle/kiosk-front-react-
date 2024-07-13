@@ -1,3 +1,4 @@
+// src/components/Login.tsx
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
@@ -20,7 +21,7 @@ const Login: React.FC = () => {
             const storeInfo = await fetchStoreInfo(adminId);
             authContext?.setStoreInfo(storeInfo);
 
-            navigate('/home');
+            navigate('/kiosk-selection'); // 로그인 후 키오스크 선택 페이지로 이동
         } catch (err) {
             setError('Invalid name or password');
         }
