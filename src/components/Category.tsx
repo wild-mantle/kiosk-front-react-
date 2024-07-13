@@ -1,7 +1,8 @@
 import React from 'react';
+import { Category as CategoryType } from '../types';
 
 interface CategoryProps {
-    categories: { id: number, name: string }[];
+    categories: CategoryType[];
     onCategoryClick: (categoryId: number) => void;
 }
 

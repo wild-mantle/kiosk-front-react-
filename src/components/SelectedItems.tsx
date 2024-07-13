@@ -4,8 +4,8 @@ import { Product, CustomOption } from '../types';
 interface SelectedItemsProps {
     selectedProducts: Product[];
     onClear: () => void;
-    onIncreaseQuantity: (productId: number) => void;
-    onDecreaseQuantity: (productId: number) => void;
+    onIncreaseQuantity: (productId: number, options: CustomOption[]) => void;
+    onDecreaseQuantity: (productId: number, options: CustomOption[]) => void;
 }
 
 const groupOptions = (options: CustomOption[]) => {
@@ -33,8 +33,8 @@ const SelectedItems: React.FC<SelectedItemsProps> = ({ selectedProducts, onClear
                         <div className="item-details">
                             <span className="item-name">{product.name} - {product.price}원 (수량: {product.quantity})</span>
                             <div className="quantity-controls">
-                                <button onClick={() => onIncreaseQuantity(product.id)}>+</button>
-                                <button onClick={() => onDecreaseQuantity(product.id)}>-</button>
+                                <button onClick={() => onIncreaseQuantity(product.id, product.options)}>+</button>
+                                <button onClick={() => onDecreaseQuantity(product.id, product.options)}>-</button>
                             </div>
                         </div>
                         <ul>

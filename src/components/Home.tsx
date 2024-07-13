@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Header from './Header';
 import Category from './Category';
 import ProductList from './ProductList';
@@ -7,25 +7,16 @@ import Timer from './Timer';
 import CheckoutButton from './CheckoutButton';
 import CustomOptionModal from './CustomOptionModal';
 import PaymentModal from './PaymentModel';
-import { Product, CustomOption, OrderModuleDTO } from '../types';
+import axios from '../api/axiosConfig';
+import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../types';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
 
-const categories = [
-    { id: 1, name: '커피' },
-    { id: 2, name: '콜드브루' },
-    { id: 3, name: '논커피' },
-    { id: 4, name: '티·에이드' },
-    { id: 5, name: '프라페·블렌디드' },
-    { id: 6, name: '푸드' },
-    { id: 7, name: 'RTD' },
-    { id: 8, name: 'MD' }
-];
-
 const Home: React.FC = () => {
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
-    const [currentCategory, setCurrentCategory] = useState<number>(categories[0].id);
+    const [currentCategory, setCurrentCategory] = useState<number | null>(null);
+    const [categories, setCategories] = useState<CategoryType[]>([]);
     const [currentMenuId, setCurrentMenuId] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
     const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
@@ -33,9 +24,35 @@ const Home: React.FC = () => {
     const [orderData, setOrderData] = useState<OrderModuleDTO | null>(null);
     const timerRef = useRef<{ resetTimer: () => void }>(null);
 
+    useEffect(() => {
+        axios.get('http://localhost:8080/api/menus/categories')
+            .then(response => {
+                setCategories(response.data);
+                if (response.data.length > 0) {
+                    setCurrentCategory(response.data[0].id);
+                }
+            })
+            .catch(error => {
+                console.error('There was an error fetching the categories!', error);
+            });
+    }, []);
+
     const handleProductClick = (product: Product) => {
-        setCurrentSelectedProduct({ ...product, quantity: 1, options: [] });
-        setIsModalOpen(true);
+        axios.get(`http://localhost:8080/api/menus/select-custom-option/${product.id}`)
+            .then(response => {
+                const options = response.data;
+                if (options.length > 0) {
+                    setCurrentSelectedProduct({ ...product, quantity: 1, options: [] });
+                    setCurrentMenuId(product.id);
+                    setIsModalOpen(true);
+                } else {
+                    // Add product directly if no options are available
+                    setSelectedProducts([...selectedProducts, { ...product, quantity: 1, options: [] }]);
+                }
+            })
+            .catch(error => {
+                console.error('There was an error fetching the custom options!', error);
+            });
     };
 
     const handleCategoryClick = (categoryId: number) => {
@@ -45,23 +62,27 @@ const Home: React.FC = () => {
         }
     };
 
-    const handleIncreaseQuantity = (productId: number) => {
+    const handleIncreaseQuantity = (productId: number, options: CustomOption[]) => {
         setSelectedProducts(selectedProducts.map(p =>
-            p.id === productId ? { ...p, quantity: p.quantity + 1 } : p
+            p.id === productId && areOptionsEqual(p.options, options)
+                ? { ...p, quantity: p.quantity + 1 }
+                : p
         ));
         if (timerRef.current) {
             timerRef.current.resetTimer();
         }
     };
 
-    const handleDecreaseQuantity = (productId: number) => {
-        const product = selectedProducts.find(p => p.id === productId);
+    const handleDecreaseQuantity = (productId: number, options: CustomOption[]) => {
+        const product = selectedProducts.find(p => p.id === productId && areOptionsEqual(p.options, options));
         if (product && product.quantity > 1) {
             setSelectedProducts(selectedProducts.map(p =>
-                p.id === productId ? { ...p, quantity: p.quantity - 1 } : p
+                p.id === productId && areOptionsEqual(p.options, options)
+                    ? { ...p, quantity: p.quantity - 1 }
+                    : p
             ));
         } else {
-            setSelectedProducts(selectedProducts.filter(p => p.id !== productId));
+            setSelectedProducts(selectedProducts.filter(p => !(p.id === productId && areOptionsEqual(p.options, options))));
         }
         if (timerRef.current) {
             timerRef.current.resetTimer();
@@ -132,13 +153,15 @@ const Home: React.FC = () => {
     const totalPrice = selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0);
 
     return (
-        <div className="app">
+        <div className="home">
             <Header />
             <Category categories={categories} onCategoryClick={handleCategoryClick} />
-            <ProductList
-                categoryId={currentCategory}
-                onProductClick={handleProductClick}
-            />
+            {currentCategory && (
+                <ProductList
+                    categoryId={currentCategory}
+                    onProductClick={handleProductClick}
+                />
+            )}
             {currentMenuId && currentSelectedProduct && (
                 <CustomOptionModal
                     isOpen={isModalOpen}
@@ -153,8 +176,8 @@ const Home: React.FC = () => {
             <SelectedItems
                 selectedProducts={selectedProducts}
                 onClear={() => setSelectedProducts([])}
-                onIncreaseQuantity={handleIncreaseQuantity}
-                onDecreaseQuantity={handleDecreaseQuantity}
+                onIncreaseQuantity={(productId, options) => handleIncreaseQuantity(productId, options)}
+                onDecreaseQuantity={(productId, options) => handleDecreaseQuantity(productId, options)}
             />
             <Timer ref={timerRef} />
             <CheckoutButton
