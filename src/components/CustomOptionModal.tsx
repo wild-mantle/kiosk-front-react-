@@ -11,6 +11,7 @@ interface CustomOptionModalProps {
     selectedProduct: Product;
     onAddOption: (option: CustomOption) => void;
     onRemoveOption: (option: CustomOption) => void;
+    onUpdateProduct: (updatedProduct: Product) => void;
 }
 
 const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
@@ -20,11 +21,12 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
                                                                  menuId,
                                                                  selectedProduct,
                                                                  onAddOption,
-                                                                 onRemoveOption
+                                                                 onRemoveOption,
+                                                                 onUpdateProduct
                                                              }) => {
     const [options, setOptions] = useState<CustomOption[]>([]);
     const [selectedOptions, setSelectedOptions] = useState<{ [key: number]: number }>({});
-    const [selectedSize, setSelectedSize] = useState('medium'); // Default size
+    const [selectedSize, setSelectedSize] = useState<string | null>('medium'); // Default size initially
     const [sizeOptionsAvailable, setSizeOptionsAvailable] = useState<boolean>(false);
     const [totalPrice, setTotalPrice] = useState<number>(selectedProduct.price);
 
@@ -33,7 +35,11 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
             .then(response => {
                 const options: CustomOption[] = response.data;
                 setOptions(options);
-                setSizeOptionsAvailable(options.some((opt: CustomOption) => ['large', 'medium', 'small'].includes(opt.name)));
+                const hasSizeOptions = options.some((opt: CustomOption) => opt.name === 'SIZE');
+                setSizeOptionsAvailable(hasSizeOptions);
+                if (hasSizeOptions) {
+                    setSelectedSize('medium'); // Default size set to 'medium' if size options are available
+                }
                 if (options.length === 0) {
                     onRequestClose();
                 }
@@ -47,6 +53,7 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
         if (isOpen) {
             setSelectedOptions({});
             setTotalPrice(selectedProduct.price); // Reset price when modal opens
+            setSelectedSize('medium'); // Ensure default size is 'medium' when modal opens
         }
     }, [isOpen]);
 
@@ -54,8 +61,10 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
         if (option.name.includes('추가')) {
             const newSelectedOptions = { ...selectedOptions, [option.id]: (selectedOptions[option.id] || 0) + 1 };
             setSelectedOptions(newSelectedOptions);
-            setTotalPrice(totalPrice + option.additionalPrice);
+            const newTotalPrice = totalPrice + option.additionalPrice;
+            setTotalPrice(newTotalPrice);
             onAddOption(option);
+            onUpdateProduct({ ...selectedProduct, price: newTotalPrice, options: [...selectedProduct.options, option] });
         }
     };
 
@@ -66,18 +75,27 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
                 delete newSelectedOptions[option.id];
             }
             setSelectedOptions(newSelectedOptions);
-            setTotalPrice(totalPrice - option.additionalPrice);
+            const newTotalPrice = totalPrice - option.additionalPrice;
+            setTotalPrice(newTotalPrice);
             onRemoveOption(option);
+            onUpdateProduct({ ...selectedProduct, price: newTotalPrice, options: selectedProduct.options.filter(opt => opt.id !== option.id) });
         }
     };
 
     const handleSizeChange = (size: string) => {
+        const sizePriceDifference = getSizeAdditionalPrice(size) - getSizeAdditionalPrice(selectedSize || 'medium');
+        const newTotalPrice = totalPrice + sizePriceDifference;
+        setTotalPrice(newTotalPrice);
         setSelectedSize(size);
-        const sizePriceDifference = getSizeAdditionalPrice(size) - getSizeAdditionalPrice(selectedSize);
-        setTotalPrice(totalPrice + sizePriceDifference);
+        const sizeOption = { id: -1, name: `SIZE-${size}`, additionalPrice: sizePriceDifference }; // Updated size option format
+        onUpdateProduct({ ...selectedProduct, price: newTotalPrice, options: [...selectedProduct.options.filter(opt => !opt.name.startsWith('SIZE-')), sizeOption] });
     };
 
     const handleClose = () => {
+        if (selectedSize) {
+            const sizeOption = { id: -1, name: `SIZE-${selectedSize}`, additionalPrice: getSizeAdditionalPrice(selectedSize) };
+            onUpdateProduct({ ...selectedProduct, options: [...selectedProduct.options.filter(opt => !opt.name.startsWith('SIZE-')), sizeOption] });
+        }
         onRequestClose();
     };
 
@@ -102,7 +120,7 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
         <Modal isOpen={isOpen} onRequestClose={handleCancel} contentLabel="Custom Options">
             <h2>추가 옵션 선택</h2>
             <div className="custom-options">
-                {options.filter(opt => !['large', 'medium', 'small'].includes(opt.name)).map(option => (
+                {options.filter(opt => opt.name !== 'SIZE').map(option => (
                     <div key={option.id} className="custom-option">
                         <span>{option.name}</span>
                         <span>{option.additionalPrice}원</span>

@@ -42,12 +42,15 @@ const Home: React.FC = () => {
             .then(response => {
                 const options = response.data;
                 if (options.length > 0) {
-                    setCurrentSelectedProduct({ ...product, quantity: 1, options: [] });
+                    setCurrentSelectedProduct({ ...product, quantity: 1, options: [], price: product.price });
                     setCurrentMenuId(product.id);
                     setIsModalOpen(true);
                 } else {
                     // Add product directly if no options are available
                     setSelectedProducts([...selectedProducts, { ...product, quantity: 1, options: [] }]);
+                    if (timerRef.current) {
+                        timerRef.current.resetTimer();
+                    }
                 }
             })
             .catch(error => {
@@ -113,8 +116,11 @@ const Home: React.FC = () => {
 
     const areOptionsEqual = (options1: CustomOption[], options2: CustomOption[]) => {
         if (options1.length !== options2.length) return false;
-        const sortedOptions1 = options1.map(opt => opt.id).sort();
-        const sortedOptions2 = options2.map(opt => opt.id).sort();
+        const sizeOption1 = options1.find(opt => opt.name.startsWith('SIZE-'));
+        const sizeOption2 = options2.find(opt => opt.name.startsWith('SIZE-'));
+        if (sizeOption1?.name !== sizeOption2?.name) return false;
+        const sortedOptions1 = options1.filter(opt => !opt.name.startsWith('SIZE-')).map(opt => opt.id).sort();
+        const sortedOptions2 = options2.filter(opt => !opt.name.startsWith('SIZE-')).map(opt => opt.id).sort();
         return sortedOptions1.every((value, index) => value === sortedOptions2[index]);
     };
 
@@ -126,17 +132,23 @@ const Home: React.FC = () => {
             if (existingProduct) {
                 setSelectedProducts(selectedProducts.map(p =>
                     p.id === currentSelectedProduct.id && areOptionsEqual(p.options, currentSelectedProduct.options)
-                        ? { ...p, quantity: p.quantity + currentSelectedProduct.quantity }
+                        ? { ...p, quantity: p.quantity + currentSelectedProduct.quantity, price: currentSelectedProduct.price }
                         : p
                 ));
             } else {
                 setSelectedProducts([...selectedProducts, currentSelectedProduct]);
+            }
+            if (timerRef.current) {
+                timerRef.current.resetTimer();
             }
         }
         setIsModalOpen(false);
     };
 
     const handleModalCancel = () => {
+        if (timerRef.current) {
+            timerRef.current.resetTimer();
+        }
         setIsModalOpen(false);
     };
 
@@ -171,6 +183,7 @@ const Home: React.FC = () => {
                     selectedProduct={currentSelectedProduct}
                     onAddOption={handleAddOption}
                     onRemoveOption={handleRemoveOption}
+                    onUpdateProduct={(updatedProduct: Product) => setCurrentSelectedProduct(updatedProduct)}
                 />
             )}
             <SelectedItems
