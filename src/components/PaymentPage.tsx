@@ -20,8 +20,11 @@ const PaymentPage: React.FC = () => {
     const [isPointModalOpen, setIsPointModalOpen] = useState(false);
     const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
     const [searchInput, setSearchInput] = useState('');
+    const [storedPhoneNumber, setStoredPhoneNumber] = useState(''); // 전화번호 저장 변수 추가
     const [password, setPassword] = useState('');
     const [existingCustomer, setExistingCustomer] = useState(false);
+    const [isValid, setIsValid] = useState(false); // 비밀번호 유효성 상태 추가
+    const [points, setPoints] = useState(0); // 포인트 상태 추가
     const navigate = useNavigate();
     const location = useLocation();
     const state = location.state as LocationState;
@@ -119,6 +122,7 @@ const PaymentPage: React.FC = () => {
 
     const handlePointModalClose = () => {
         setIsPointModalOpen(false);
+        setSearchInput(''); // 모달이 닫힐 때 입력 필드 초기화
     };
 
     const handlePasswordModalOpen = () => {
@@ -127,9 +131,15 @@ const PaymentPage: React.FC = () => {
 
     const handlePasswordModalClose = () => {
         setIsPasswordModalOpen(false);
+        setPassword(''); // 모달이 닫힐 때 비밀번호 필드 초기화
+        setIsValid(false); // 모달이 닫힐 때 유효성 상태 초기화
+        setStoredPhoneNumber(''); // 모달이 닫힐 때 저장된 전화번호 초기화
+        setExistingCustomer(false); // 모달이 닫힐 때 기존 고객 여부 초기화
     };
 
     const handleSearch = async () => {
+        console.log(searchInput); // 입력된 전화번호를 콘솔에 출력
+        setStoredPhoneNumber(searchInput); // 검색한 전화번호를 저장
         try {
             const response = await axios.get(`http://localhost:8080/api/customer/${searchInput}`);
             if (response.status === 200) {
@@ -161,37 +171,33 @@ const PaymentPage: React.FC = () => {
     };
 
     const handlePasswordSubmit = async () => {
+        console.log(storedPhoneNumber); // 저장된 전화번호를 콘솔에 출력
         if (existingCustomer) {
             try {
                 const response = await axios.post('http://localhost:8080/api/customer/validatePassword', {
-                    phone: searchInput,
+                    phoneNumber: storedPhoneNumber,
                     password: password
                 });
-                if (response.data) {
-                    // 비밀번호가 유효하면 포인트 적립
-                    const pointsToAdd = orderData.price * 0.01;
-                    const response = await axios.post('http://localhost:8080/api/customer/addPoints', {
-                        phone: searchInput,
-                        points: pointsToAdd
-                    });
-                    alert(`적립금액 ${pointsToAdd}원 만큼 적립되었습니다. (현재 적립금액: ${response.data.points}원)`);
+                if (response.data.valid) {
+                    setIsValid(true);
+                    setPoints(response.data.points);
                 } else {
                     alert('비밀번호가 유효하지 않습니다.');
                 }
             } catch (error) {
                 console.error(error);
-                alert('포인트 적립에 실패했습니다.');
-            } finally {
-                handlePasswordModalClose();
+                alert('포인트 확인에 실패했습니다.');
             }
         } else {
             // 새 고객 등록 및 비밀번호 설정 로직
             try {
                 const response = await axios.post('http://localhost:8080/api/customer/register', {
-                    phone: searchInput,
+                    phoneNumber: storedPhoneNumber,
                     password: password
                 });
+                console.log('Response data:', response.data); // 디버깅
                 alert('고객이 등록되었습니다!');
+                handlePasswordModalClose();
             } catch (error) {
                 console.error(error);
                 alert('고객 등록에 실패했습니다.');
@@ -199,6 +205,16 @@ const PaymentPage: React.FC = () => {
                 handlePasswordModalClose();
             }
         }
+    };
+
+    const handleUsePoints = () => {
+        // 포인트 사용 로직 추가
+        console.log('포인트 사용');
+    };
+
+    const handleSkipPoints = () => {
+        // 포인트 사용하지 않음 로직 추가
+        console.log('포인트 사용 안함');
     };
 
     const handleTestButtonClick = () => {
@@ -285,6 +301,10 @@ const PaymentPage: React.FC = () => {
                 password={password}
                 setPassword={setPassword}
                 handlePasswordSubmit={handlePasswordSubmit}
+                isValid={isValid}
+                points={points}
+                handleUsePoints={handleUsePoints}
+                handleSkipPoints={handleSkipPoints}
             />
         </div>
     );
