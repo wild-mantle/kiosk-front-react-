@@ -61,7 +61,8 @@ const OptionManagement: React.FC = () => {
         axios.post(`${apiHost}/api/menus/add-custom-option`, newOption)
             .then(response => {
                 // 옵션 목록 갱신
-                setOptions([...options, response.data]);
+                setOptions([...options, response.data])
+                alert('추가되었습니다');
                 // 모달 닫기 및 입력 필드 초기화
                 handleCloseModal();
             })
@@ -69,8 +70,14 @@ const OptionManagement: React.FC = () => {
     };
 
     const handleDeleteOption = (id: number) => {
+        if (!window.confirm("정말로 삭제하시겠습니까?")) {
+            return;
+        }
         axios.delete(`${apiHost}/api/menus/delete-custom-option/${id}`)
-            .then(() => setOptions(options.filter(option => option.id !== id)))
+            .then(() => {
+                setOptions(options.filter(option => option.id !== id))
+                alert('삭제되었습니다');
+            })
             .catch(error => console.error('Error deleting option:', error));
     };
 
