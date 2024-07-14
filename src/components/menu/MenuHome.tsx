@@ -27,9 +27,13 @@ const MenuHome: React.FC = () => {
     useEffect(() => {
         axios.get('http://localhost:8080/api/menus/categories')
             .then(response => {
-                setCategories(response.data);
-                if (response.data.length > 0) {
-                    setCurrentCategory(response.data[0].id);
+                const updatedCategories = response.data.map((category: CategoryType) => ({
+                    ...category,
+                    visible: true // 기본적으로 모든 카테고리를 보이도록 설정
+                }));
+                setCategories(updatedCategories);
+                if (updatedCategories.length > 0) {
+                    setCurrentCategory(updatedCategories[0].id);
                 }
             })
             .catch(error => {
@@ -164,10 +168,19 @@ const MenuHome: React.FC = () => {
 
     const totalPrice = selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0);
 
+    const toggleCategoryVisibility = (categoryId: number) => {
+        setCategories(categories.map(category =>
+            category.id === categoryId ? { ...category, visible: !category.visible } : category
+        ));
+    };
+
     return (
         <div className="home">
             <Header />
-            <Category categories={categories} onCategoryClick={handleCategoryClick} />
+            <Category
+                categories={categories.filter(category => category.visible)}
+                onCategoryClick={handleCategoryClick}
+            />
             {currentCategory && (
                 <ProductList
                     categoryId={currentCategory}

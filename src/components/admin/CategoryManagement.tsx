@@ -31,18 +31,21 @@ const CategoryManagement: React.FC = () => {
     };
 
     const handleDeleteCategory = (id: number) => {
+        if (!window.confirm("정말로 삭제하시겠습니까?")) {
+            return;
+        }
         axios.delete(`${apiHost}/admin/category/delete`, { params: { id } })
-            .then(() => setCategories(categories.filter(category => category.id !== id)))
+            .then(() => {
+                setCategories(categories.filter(category => category.id !== id))
+                alert('삭제되었습니다');
+            })
             .catch(error => console.error('Error deleting category:', error));
     };
 
     const handleToggleVisibility = (id: number) => {
-        const updatedCategories = categories.map(category =>
+        setCategories(categories.map(category =>
             category.id === id ? { ...category, visible: !category.visible } : category
-        );
-        setCategories(updatedCategories);
-        axios.patch(`${apiHost}/admin/category/${id}`, { visible: !categories.find(category => category.id === id)?.visible })
-            .catch(error => console.error('Error toggling visibility:', error));
+        ));
     };
 
     const handleDragEnd = (result: DropResult) => {
@@ -51,8 +54,6 @@ const CategoryManagement: React.FC = () => {
         const [removed] = reorderedCategories.splice(result.source.index, 1);
         reorderedCategories.splice(result.destination.index, 0, removed);
         setCategories(reorderedCategories);
-        axios.put(`${apiHost}/admin/category/reorder`, { categories: reorderedCategories })
-            .catch(error => console.error('Error reordering categories:', error));
     };
 
     return (
@@ -75,14 +76,13 @@ const CategoryManagement: React.FC = () => {
             <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="categories">
                     {(provided) => (
-                        <ul {...provided.droppableProps} ref={provided.innerRef}>
+                        <ul ref={provided.innerRef} {...provided.droppableProps}>
                             {categories.map((category, index) => (
                                 <Draggable key={category.id} draggableId={String(category.id)} index={index}>
                                     {(provided) => (
-                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
+                                        <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps} key={category.id}>
                                             <span>{category.name}</span>
                                             <button onClick={() => handleToggleVisibility(category.id)}>
-                                                {/* 현재 코드는 노출 켜기 창이 나와야 카테고리가 노출되는 것 */}
                                                 {category.visible ? '노출 끄기' : '노출 켜기'}
                                             </button>
                                             <button onClick={() => handleDeleteCategory(category.id)}>삭제</button>
