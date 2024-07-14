@@ -10,10 +10,18 @@ interface Option {
     items: { name: string, price: number }[];
 }
 
+interface Menu {
+    id: number;
+    name: string;
+}
+
 const OptionManagement: React.FC = () => {
     const [options, setOptions] = useState<Option[]>([]);
+    const [menus, setMenus] = useState<Menu[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [newOptionName, setNewOptionName] = useState('');
+    const [newOptionAdditionalPrice, setNewOptionAdditionalPrice] = useState(0);
+    const [newOptionMenuId, setNewOptionMenuId] = useState(0);
     const [newOptionItems, setNewOptionItems] = useState<{ name: string, price: number }[]>([]);
     // const [newOptionRequired, setNewOptionRequired] = useState(false);
     const [newItemName, setNewItemName] = useState('');
@@ -25,16 +33,37 @@ const OptionManagement: React.FC = () => {
         axios.get(`${apiHost}/api/menus/all-custom-options-with-menu-name`)
             .then(response => setOptions(response.data))
             .catch(error => console.error('Error fetching options:', error));
+
+        axios.get(`${apiHost}/api/menus/all`)
+            .then(response => {
+                // 중복된 메뉴 이름 제거
+                const uniqueMenus = response.data.reduce((acc: Menu[], menu: Menu) => {
+                    if (!acc.find(m => m.id === menu.id)) {
+                        acc.push(menu);
+                    }
+                    return acc;
+                }, []);
+                setMenus(uniqueMenus);
+            })
+            .catch(error => console.error('Error fetching menus:', error));
     }, []);
 
     const handleAddOption = () => {
-        // axios.post(`${apiHost}/api/menus/add-custom-option`, { name: newOptionName, items: newOptionItems, required: newOptionRequired })
-        axios.post(`${apiHost}/api/menus/add-custom-option`, { name: newOptionName, items: newOptionItems})
+        // 옵션 추가를 위한 데이터 준비
+        const newOption = {
+            name: newOptionName,
+            additionalPrice: newOptionAdditionalPrice,
+            menuId: newOptionMenuId,
+            items: newOptionItems // items 추가
+        };
+
+        // 백엔드 API 호출하여 옵션 추가
+        axios.post(`${apiHost}/api/menus/add-custom-option`, newOption)
             .then(response => {
+                // 옵션 목록 갱신
                 setOptions([...options, response.data]);
-                setShowAddModal(false);
-                setNewOptionName('');
-                setNewOptionItems([]);
+                // 모달 닫기 및 입력 필드 초기화
+                handleCloseModal();
             })
             .catch(error => console.error('Error adding option:', error));
     };
@@ -45,8 +74,20 @@ const OptionManagement: React.FC = () => {
             .catch(error => console.error('Error deleting option:', error));
     };
 
+    // 추가된 코드: 항목 추가 시 메뉴명, 상세옵션명, 가격 모두 표시 - 기존 코드는 가격만 표시
     const handleAddItemToOption = () => {
-        setNewOptionItems([...newOptionItems, { name: newItemName, price: newItemPrice }]);
+        const selectedMenuName = menus.find(menu => menu.id === newOptionMenuId)?.name || '';
+        setNewOptionItems([...newOptionItems, { name: `${selectedMenuName} - ${newOptionName}`, price: newItemPrice }]);
+        setNewItemName('');
+        setNewItemPrice(0);
+    };
+
+    // 모달 초기화 - 기존 코드는 취소시 항목담기 초기화가 되지않았다.
+    const handleCloseModal = () => {
+        setShowAddModal(false);
+        setNewOptionName('');
+        setNewOptionMenuId(0);
+        setNewOptionItems([]);
         setNewItemName('');
         setNewItemPrice(0);
     };
@@ -67,6 +108,7 @@ const OptionManagement: React.FC = () => {
             {showAddModal && (
                 <div className="modal">
                     <h3>옵션 추가</h3>
+                    <h5>옵션 이름</h5>
                     <input
                         type="text"
                         value={newOptionName}
@@ -74,13 +116,18 @@ const OptionManagement: React.FC = () => {
                         placeholder="추가할 옵션 이름"
                     />
                     <div>
-                        <h4>옵션 항목 추가</h4>
-                        <input
-                            type="text"
-                            value={newItemName}
-                            onChange={(e) => setNewItemName(e.target.value)}
-                            placeholder="상품 이름"
-                        />
+                        <h4>상세 옵션 항목 추가</h4>
+                        <h5>상품명</h5>
+                        <select
+                            value={newOptionMenuId}
+                            onChange={(e) => setNewOptionMenuId(parseInt(e.target.value))}
+                        >
+                            <option value={0}>상품 선택</option>
+                            {menus.map(menu => (
+                                <option key={menu.id} value={menu.id}>{menu.name}</option>
+                            ))}
+                        </select>
+                        <h5>옵션 가격</h5>
                         <input
                             type="number"
                             value={newItemPrice}
@@ -106,7 +153,7 @@ const OptionManagement: React.FC = () => {
                     {/*    />*/}
                     {/*</label>*/}
                     <button onClick={handleAddOption}>저장</button>
-                    <button onClick={() => setShowAddModal(false)}>취소</button>
+                    <button onClick={handleCloseModal}>취소</button>
                 </div>
             )}
             <div>
