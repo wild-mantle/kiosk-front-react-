@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../api/axiosConfig';
+import Select from 'react-select';
 
 interface Product {
     id: number;
     name: string;
     price: number;
     category: string;
-    options: string[];
     soldOut: boolean;
     tags: string;
 }
@@ -16,53 +16,69 @@ interface Category {
     name: string;
 }
 
-interface Option {
-    id: number;
-    name: string;
-}
-
 const ProductManagement: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
-    const [options, setOptions] = useState<Option[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-    const [newProduct, setNewProduct] = useState<Product>({ id: 0, name: '', price: 0, category: '', options: [], soldOut: false, tags: '' });
+    const [newProduct, setNewProduct] = useState<Product>({ id: 0, name: '', price: 0, category: '', soldOut: false, tags: '' });
     const [editingProductId, setEditingProductId] = useState<number | null>(null);
     const apiHost = "http://localhost:8080";
 
     useEffect(() => {
+        fetchProducts();
+        fetchCategories();
+    }, []);
+
+    const fetchProducts = () => {
         axios.get(`${apiHost}/api/menus/all`)
             .then(response => setProducts(response.data))
             .catch(error => console.error('Error fetching products:', error));
+    };
+
+    const fetchCategories = () => {
         axios.get(`${apiHost}/admin/category/all`)
             .then(response => setCategories(response.data))
             .catch(error => console.error('Error fetching categories:', error));
-        axios.get(`${apiHost}/api/menus/all-custom-options`)
-            .then(response => setOptions(response.data))
-            .catch(error => console.error('Error fetching options:', error));
-    }, []);
+    };
 
     const handleAddProduct = () => {
-        axios.post(`${apiHost}/admin/menu/add_rest`, newProduct)
+        if (!newProduct.category) {
+            alert('카테고리를 선택해 주세요.');
+            return;
+        }
+
+        const newProductData = {
+            name: newProduct.name,
+            categoryId: parseInt(newProduct.category),
+            price: newProduct.price,
+            soldOut: newProduct.soldOut,
+            tags: newProduct.tags,
+        };
+
+        axios.post(`${apiHost}/admin/menu/add_rest_simple`, newProductData)
             .then(response => {
-                setProducts([...products, response.data]);
+                fetchProducts();
                 setShowAddModal(false);
-                setNewProduct({ id: 0, name: '', price: 0, category: '', options: [], soldOut: false, tags: '' });
+                setNewProduct({ id: 0, name: '', price: 0, category: '', soldOut: false, tags: '' });
             })
             .catch(error => console.error('Error adding product:', error));
     };
 
     const handleEditProduct = (id: number) => {
         axios.put(`${apiHost}/api/menus/${id}`, newProduct)
-            .then(response => setProducts(products.map(product => product.id === id ? response.data : product)))
+            .then(response => {
+                fetchProducts();
+                setShowEditModal(false);
+                setEditingProductId(null);
+            })
             .catch(error => console.error('Error editing product:', error));
     };
 
     const handleDeleteProduct = (id: number) => {
         axios.delete(`${apiHost}/api/menus/${id}`)
-            .then(() => setProducts(products.filter(product => product.id !== id)))
+            .then(() => fetchProducts())
             .catch(error => console.error('Error deleting product:', error));
     };
 
@@ -75,6 +91,17 @@ const ProductManagement: React.FC = () => {
     const filteredProducts = selectedCategory
         ? products.filter(product => product.category === selectedCategory)
         : products;
+
+    const handleCloseModal = () => {
+        setShowAddModal(false);
+        setShowEditModal(false);
+        setNewProduct({ id: 0, name: '', price: 0, category: '', soldOut: false, tags: '' });
+    };
+
+    const categoryOptions = categories.map(category => ({
+        value: category.id.toString(),
+        label: category.name
+    }));
 
     return (
         <div>
@@ -112,33 +139,11 @@ const ProductManagement: React.FC = () => {
                         onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
                         placeholder="상품 가격"
                     />
-                    <select
-                        value={newProduct.category}
-                        onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                    >
-                        <option value="">카테고리 선택</option>
-                        {categories.map(category => (
-                            <option key={category.id} value={category.name}>{category.name}</option>
-                        ))}
-                    </select>
-                    <div>
-                        <h4>옵션 선택</h4>
-                        {options.map(option => (
-                            <label key={option.id}>
-                                <input
-                                    type="checkbox"
-                                    checked={newProduct.options.includes(option.name)}
-                                    onChange={(e) => {
-                                        const newOptions = e.target.checked
-                                            ? [...newProduct.options, option.name]
-                                            : newProduct.options.filter(opt => opt !== option.name);
-                                        setNewProduct({ ...newProduct, options: newOptions });
-                                    }}
-                                />
-                                {option.name}
-                            </label>
-                        ))}
-                    </div>
+                    <Select
+                        options={categoryOptions}
+                        onChange={(selectedOption) => setNewProduct({ ...newProduct, category: selectedOption?.value || '' })}
+                        placeholder="카테고리 선택"
+                    />
                     <label>
                         품절 여부
                         <input
@@ -156,7 +161,7 @@ const ProductManagement: React.FC = () => {
                         <option value="신규">신규</option>
                     </select>
                     <button onClick={handleAddProduct}>저장</button>
-                    <button onClick={() => setShowAddModal(false)}>취소</button>
+                    <button onClick={handleCloseModal}>취소</button>
                 </div>
             )}
             {showEditModal && (
@@ -174,33 +179,12 @@ const ProductManagement: React.FC = () => {
                         onChange={(e) => setNewProduct({ ...newProduct, price: parseFloat(e.target.value) })}
                         placeholder="상품 가격"
                     />
-                    <select
-                        value={newProduct.category}
-                        onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value })}
-                    >
-                        <option value="">카테고리 선택</option>
-                        {categories.map(category => (
-                            <option key={category.id} value={category.name}>{category.name}</option>
-                        ))}
-                    </select>
-                    <div>
-                        <h4>옵션 선택</h4>
-                        {options.map(option => (
-                            <label key={option.id}>
-                                <input
-                                    type="checkbox"
-                                    checked={newProduct.options.includes(option.name)}
-                                    onChange={(e) => {
-                                        const newOptions = e.target.checked
-                                            ? [...newProduct.options, option.name]
-                                            : newProduct.options.filter(opt => opt !== option.name);
-                                        setNewProduct({ ...newProduct, options: newOptions });
-                                    }}
-                                />
-                                {option.name}
-                            </label>
-                        ))}
-                    </div>
+                    <Select
+                        options={categoryOptions}
+                        value={categoryOptions.find(option => option.value === newProduct.category)}
+                        onChange={(selectedOption) => setNewProduct({ ...newProduct, category: selectedOption?.value || '' })}
+                        placeholder="카테고리 선택"
+                    />
                     <label>
                         품절 여부
                         <input
@@ -222,7 +206,7 @@ const ProductManagement: React.FC = () => {
                         setShowEditModal(false);
                         setEditingProductId(null);
                     }}>저장</button>
-                    <button onClick={() => setShowEditModal(false)}>취소</button>
+                    <button onClick={handleCloseModal}>취소</button>
                 </div>
             )}
             <ul>
