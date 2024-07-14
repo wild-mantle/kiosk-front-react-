@@ -15,7 +15,7 @@ const Login: React.FC = () => {
             const token = await login(username, password);
             authContext?.login();
             localStorage.setItem('token', token); // JWT 토큰 저장
-            navigate('/home');
+            navigate('/main');
         } catch (err) {
             setError('Invalid name or password');
         }
