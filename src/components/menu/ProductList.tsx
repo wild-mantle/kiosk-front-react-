@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import axios from '../api/axiosConfig';
-import { Product } from '../types';
+import axios from '../../api/axiosConfig';
+import { Product } from '../../types';
 import ProductCard from './ProductCard';
 
 interface ProductListProps {

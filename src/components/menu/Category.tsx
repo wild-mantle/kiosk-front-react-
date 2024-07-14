@@ -1,5 +1,5 @@
 import React from 'react';
-import { Category as CategoryType } from '../types';
+import { Category as CategoryType } from '../../types';
 
 interface CategoryProps {
     categories: CategoryType[];

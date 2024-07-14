@@ -1,5 +1,5 @@
 import React from 'react';
-import { Product, CustomOption } from '../types';
+import { Product, CustomOption } from '../../types';
 
 interface SelectedItemsProps {
     selectedProducts: Product[];

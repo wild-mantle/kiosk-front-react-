@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import AdminLoginModal from './admin/AdminLoginModal';
+import { useNavigate } from 'react-router-dom';
+import AdminLoginModal from '../admin/AdminLoginModal';
 
 const Header: React.FC = () => {
     const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);
+    const navigate = useNavigate ();
 
     const handleAdminClick = () => {
         setIsAdminLoginOpen(true);
@@ -12,9 +14,13 @@ const Header: React.FC = () => {
         setIsAdminLoginOpen(false);
     };
 
+    const handleMainPage = () => {
+        navigate('/main');
+    };
+
     return (
         <header className="header">
-            <div className="home-icon">🏠</div>
+            <div className="home-icon" onClick={handleMainPage}>🏠</div>
             <h1>Easy KIOSK</h1>
             <div className="settings-icon" onClick={handleAdminClick}>⚙️</div>
             {isAdminLoginOpen && <AdminLoginModal onClose={handleAdminLoginClose} />}

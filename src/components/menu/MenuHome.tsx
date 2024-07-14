@@ -4,16 +4,16 @@ import Category from './Category';
 import ProductList from './ProductList';
 import SelectedItems from './SelectedItems';
 import Timer from './Timer';
-import CheckoutButton from './CheckoutButton';
-import CustomOptionModal from './CustomOptionModal';
-import PaymentModal from './PaymentModel';
-import axios from '../api/axiosConfig';
-import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../types';
+import CheckoutButton from '../CheckoutButton';
+import CustomOptionModal from '../CustomOptionModal';
+import PaymentModal from '../PaymentModel';
+import axios from '../../api/axiosConfig';
+import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../../types';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
 
-const Home: React.FC = () => {
+const MenuHome: React.FC = () => {
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [currentCategory, setCurrentCategory] = useState<number | null>(null);
     const [categories, setCategories] = useState<CategoryType[]>([]);
@@ -209,4 +209,4 @@ const Home: React.FC = () => {
     );
 };
 
-export default Home;
+export default MenuHome;
