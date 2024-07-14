@@ -90,6 +90,11 @@ const OptionManagement: React.FC = () => {
         setNewOptionItems([]);
         setNewItemName('');
         setNewItemPrice(0);
+
+        // 추가된 코드: 새로 추가된 옵션을 포함하도록 옵션 목록 갱신
+        axios.get(`${apiHost}/api/menus/all-custom-options-with-menu-name`)
+            .then(response => setOptions(response.data))
+            .catch(error => console.error('Error fetching options:', error));
     };
 
     const sortedOptions = [...options].sort((a, b) => {
