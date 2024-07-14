@@ -82,6 +82,7 @@ const CategoryManagement: React.FC = () => {
                                         <li ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
                                             <span>{category.name}</span>
                                             <button onClick={() => handleToggleVisibility(category.id)}>
+                                                {/* 현재 코드는 노출 켜기 창이 나와야 카테고리가 노출되는 것 */}
                                                 {category.visible ? '노출 끄기' : '노출 켜기'}
                                             </button>
                                             <button onClick={() => handleDeleteCategory(category.id)}>삭제</button>
