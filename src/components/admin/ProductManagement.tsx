@@ -54,7 +54,7 @@ const ProductManagement: React.FC = () => {
             categoryId: parseInt(newProduct.category),
             price: newProduct.price,
             soldOut: newProduct.soldOut,
-            tags: newProduct.tags,
+            tag: newProduct.tags,
         };
 
         axios.post(`${apiHost}/admin/menu/add_rest_simple`, newProductData)
@@ -66,8 +66,23 @@ const ProductManagement: React.FC = () => {
             .catch(error => console.error('Error adding product:', error));
     };
 
-    const handleEditProduct = (id: number) => {
-        axios.put(`${apiHost}/api/menus/${id}`, newProduct)
+    const handleEditProduct = () => {
+        if (editingProductId === null) return;
+
+        if (!newProduct.category) {
+            alert("카테고리를 선택하세요.");
+            return;
+        }
+
+        const updatedProductData = {
+            name: newProduct.name,
+            categoryId: parseInt(newProduct.category),
+            price: newProduct.price,
+            soldOut: newProduct.soldOut,
+            tag: newProduct.tags,
+        };
+
+        axios.put(`${apiHost}/api/update/menus/${editingProductId}`, updatedProductData)
             .then(response => {
                 fetchProducts();
                 setShowEditModal(false);
@@ -77,9 +92,13 @@ const ProductManagement: React.FC = () => {
     };
 
     const handleDeleteProduct = (id: number) => {
-        axios.delete(`${apiHost}/api/menus/${id}`)
+        if (!window.confirm("정말로 삭제하시겠습니까?")) {
+            return;
+        }
+        axios.delete(`${apiHost}/admin/menu/delete/${id}`)
             .then(() => fetchProducts())
             .catch(error => console.error('Error deleting product:', error));
+        window.confirm(('삭제되었습니다'))
     };
 
     const openEditModal = (product: Product) => {
@@ -153,7 +172,7 @@ const ProductManagement: React.FC = () => {
                         />
                     </label>
                     <select
-                        value={newProduct.tags}
+                        value={newProduct.tags || ''}
                         onChange={(e) => setNewProduct({ ...newProduct, tags: e.target.value })}
                     >
                         <option value="">태그 선택</option>
@@ -194,18 +213,14 @@ const ProductManagement: React.FC = () => {
                         />
                     </label>
                     <select
-                        value={newProduct.tags}
+                        value={newProduct.tags || ''}
                         onChange={(e) => setNewProduct({ ...newProduct, tags: e.target.value })}
                     >
                         <option value="">태그 선택</option>
                         <option value="인기">인기</option>
                         <option value="신규">신규</option>
                     </select>
-                    <button onClick={() => {
-                        if (editingProductId !== null) handleEditProduct(editingProductId);
-                        setShowEditModal(false);
-                        setEditingProductId(null);
-                    }}>저장</button>
+                    <button onClick={handleEditProduct}>저장</button>
                     <button onClick={handleCloseModal}>취소</button>
                 </div>
             )}
