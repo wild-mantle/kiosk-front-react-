@@ -15,6 +15,12 @@ interface LocationState {
 }
 
 const PaymentPage: React.FC = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
+    const state = location.state as LocationState;
+    const { orderData, selectedProducts } = state;
+    const [finalTotalPrice, setFinalTotalPrice] = useState(orderData.price); // 초기 상태 설정
+
     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
     const [isPackaged, setIsPackaged] = useState<boolean | undefined>(undefined);
     const [highlightButtons, setHighlightButtons] = useState(false);
@@ -26,10 +32,6 @@ const PaymentPage: React.FC = () => {
     const [existingCustomer, setExistingCustomer] = useState(false);
     const [isValid, setIsValid] = useState(false); // 비밀번호 유효성 상태 추가
     const [points, setPoints] = useState(0); // 포인트 상태 추가
-    const navigate = useNavigate();
-    const location = useLocation();
-    const state = location.state as LocationState;
-    const { orderData, selectedProducts } = state;
     const authContext = useContext(AuthContext);
 
     useEffect(() => {
@@ -67,7 +69,7 @@ const PaymentPage: React.FC = () => {
                     pay_method: 'card',
                     merchant_uid: orderData.orderUid, // 주문 번호
                     name: orderData.storeName, // 상품 이름
-                    amount: orderData.price, // 상품 가격
+                    amount: finalTotalPrice, // 최종 결제 금액
                     buyer_email: orderData.email, // 구매자 이메일
                     buyer_name: orderData.storeName, // 구매자 이름
                     buyer_tel: '010-1234-5678', // 임의의 값
@@ -81,9 +83,9 @@ const PaymentPage: React.FC = () => {
                             // 결제 성공 시 주문 생성
                             const order = {
                                 customer: {
-                                    customerID: authContext?.customerInfo?.id || 1,
-                                    customerName: authContext?.customerInfo?.name || 'not registered',
-                                    customerPhone: authContext?.customerInfo?.phoneNumber || 'none',
+                                    id: authContext?.customerInfo?.id || 1,
+                                    name: authContext?.customerInfo?.name || 'not registered',
+                                    phoneNumber: authContext?.customerInfo?.phoneNumber || 'none',
                                     points: authContext?.customerInfo?.points || 0,
                                     email: orderData.email,
                                     address: orderData.address
@@ -95,12 +97,38 @@ const PaymentPage: React.FC = () => {
                                 },
                                 dateTime: new Date(),
                                 totalPrice: orderData.price,
-                                isPackaged: isPackaged // 포장 여부 설정
+                                isPackaged: isPackaged, // 포장 여부 설정
+                                orderUid: orderData.orderUid
                             };
 
                             const response = await axios.post('http://localhost:8080/api/orders', order);
                             console.log('서버 응답:', response.data);
                             alert('결제 완료!');
+
+                            // 포인트 사용 및 적립 로직
+                            if (authContext?.customerInfo) {
+                                if (authContext.usePointSwitch) {
+                                    // 포인트 사용 로직
+                                    await axios.post('http://localhost:8080/api/customer/usePoints', {
+                                        phoneNumber: authContext.customerInfo.phoneNumber,
+                                        totalPrice: orderData.price,
+                                        pointsToUse: points
+                                    });
+                                    console.log('포인트가 사용되었습니다.');
+                                }
+
+                                // 포인트 적립 로직
+                                const pointsToAdd = Math.floor(orderData.price * 0.01);
+                                await axios.post('http://localhost:8080/api/customer/addPoints', {
+                                    phoneNumber: authContext.customerInfo.phoneNumber,
+                                    totalPrice: orderData.price,
+                                    pointsToUse: 0 // 적립할 때는 사용 포인트는 0으로 설정
+                                });
+                                console.log('포인트가 적립되었습니다.');
+                            } else {
+                                console.log('비회원 결제');
+                            }
+
                             navigate('/home'); // 결제 완료 후 홈으로 이동
                         } catch (error) {
                             console.error('주문 생성 실패:', error);
@@ -190,6 +218,7 @@ const PaymentPage: React.FC = () => {
                         email: response.data.customer.email,
                         address: response.data.customer.address
                     });
+                    authContext?.setUsePointSwitch(true); // usePointSwitch 설정
                 } else {
                     alert('비밀번호가 유효하지 않습니다.');
                 }
@@ -214,6 +243,7 @@ const PaymentPage: React.FC = () => {
                     email: response.data.email,
                     address: response.data.address
                 });
+                authContext?.setUsePointSwitch(true); // usePointSwitch 설정
                 handlePasswordModalClose();
             } catch (error) {
                 console.error(error);
@@ -226,11 +256,17 @@ const PaymentPage: React.FC = () => {
 
     const handleUsePoints = () => {
         // 포인트 사용 로직 추가
+        const pointsToUse = points; // 사용하려는 포인트 양
+        const newTotalPrice = orderData.price - pointsToUse;
+        setFinalTotalPrice(newTotalPrice < 0 ? 0 : newTotalPrice); // 최종 결제 금액 업데이트
+        handlePasswordModalClose(); // 모달 닫기
         console.log('포인트 사용');
     };
 
     const handleSkipPoints = () => {
         // 포인트 사용하지 않음 로직 추가
+        setFinalTotalPrice(orderData.price); // 최종 결제 금액을 원래대로
+        handlePasswordModalClose(); // 모달 닫기
         console.log('포인트 사용 안함');
     };
 
@@ -251,7 +287,7 @@ const PaymentPage: React.FC = () => {
                 store: { storeID: authContext?.storeInfo?.id } // Store 객체를 적절히 설정해야 함
             },
             dateTime: new Date(),
-            totalPrice: orderData.price,
+            totalPrice: finalTotalPrice,
             isPackaged: isPackaged // 포장 여부 설정
         };
         console.log('생성될 주문 객체:', order);
@@ -299,7 +335,7 @@ const PaymentPage: React.FC = () => {
                 </div>
             </div>
             <footer className="payment-footer">
-                <div className="total-amount">결제 금액: {orderData.price}원</div>
+                <div className="total-amount">결제 금액: {finalTotalPrice}원</div>
                 <button className="payment-button" onClick={requestPay} disabled={!isScriptLoaded}>
                     결제하기
                 </button>
@@ -322,6 +358,7 @@ const PaymentPage: React.FC = () => {
                 points={points}
                 handleUsePoints={handleUsePoints}
                 handleSkipPoints={handleSkipPoints}
+                storedPhoneNumber={storedPhoneNumber} // 추가된 부분
             />
         </div>
     );

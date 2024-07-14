@@ -1,24 +1,20 @@
 // src/components/GuardPage.tsx
-import React, { useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './GuardPage.css'; // CSS 파일 추가
+import { AuthContext } from '../context/AuthContext';
 
 const GuardPage: React.FC = () => {
-    const authContext = useContext(AuthContext);
     const navigate = useNavigate();
+    const authContext = useContext(AuthContext);
 
-    const handleResetCustomerInfo = () => {
-        authContext?.setCustomerInfo(null);
-        navigate('/home');
-    };
+    useEffect(() => {
+        // GuardPage로 돌아갈 때 usePointSwitch 초기화
+        authContext?.setUsePointSwitch(false);
+    }, [authContext]);
 
     return (
-        <div className="guard-page">
-            <h2>키오스크 화면 가드</h2>
-            <button className="guard-button" onClick={handleResetCustomerInfo}>
-                주문하기
-            </button>
+        <div>
+            {/* GuardPage의 내용 */}
         </div>
     );
 };

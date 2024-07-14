@@ -1,3 +1,4 @@
+// src/components/PasswordModal.tsx
 import React from 'react';
 import Modal from 'react-modal';
 import Keyboard from 'react-simple-keyboard';
@@ -14,6 +15,7 @@ interface PasswordModalProps {
     points: number;
     handleUsePoints: () => void;
     handleSkipPoints: () => void;
+    storedPhoneNumber: string; // 추가된 부분
 }
 
 const PasswordModal: React.FC<PasswordModalProps> = ({
@@ -25,7 +27,8 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
                                                          isValid,
                                                          points,
                                                          handleUsePoints,
-                                                         handleSkipPoints
+                                                         handleSkipPoints,
+                                                         storedPhoneNumber // 추가된 부분
                                                      }) => {
     const keyboardOptions = {
         layout: {
@@ -51,10 +54,11 @@ const PasswordModal: React.FC<PasswordModalProps> = ({
             {isValid ? (
                 <div>
                     <h2>잔여 포인트: {points}</h2>
-                    <button className="modal-submit-button" onClick={handleUsePoints}>
+                    <p>고객 전화번호: {storedPhoneNumber}</p> {/* 추가된 부분 */}
+                    <button className="modal-submit-button" onClick={() => { handleUsePoints(); onRequestClose(); }}>
                         포인트 사용
                     </button>
-                    <button className="modal-submit-button" onClick={handleSkipPoints}>
+                    <button className="modal-submit-button" onClick={() => { handleSkipPoints(); onRequestClose(); }}>
                         포인트 사용 안함
                     </button>
                 </div>
