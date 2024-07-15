@@ -37,7 +37,7 @@ const KioskSelectionPage: React.FC = () => {
     const handleKioskSelect = (kiosk: Kiosk) => {
         console.log('Selected kiosk:', kiosk); // 콘솔에 선택한 키오스크 출력
         authContext?.setKioskInfo(kiosk);
-        navigate('/menu');
+        navigate('/guard');
     };
 
     return (
