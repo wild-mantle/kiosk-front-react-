@@ -41,4 +41,5 @@ export interface PaymentResponse {
 export interface Category {
     id: number;
     name: string;
+    visible: boolean;
 }

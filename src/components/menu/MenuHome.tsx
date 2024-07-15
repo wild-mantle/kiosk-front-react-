@@ -1,35 +1,42 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
+import {AuthContext} from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Category from './Category';
 import ProductList from './ProductList';
 import SelectedItems from './SelectedItems';
 import Timer from './Timer';
-import CheckoutButton from './CheckoutButton';
-import CustomOptionModal from './CustomOptionModal';
-import PaymentModal from './PaymentModel';
-import axios from '../api/axiosConfig';
-import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../types';
+import CheckoutButton from '../CheckoutButton';
+import CustomOptionModal from '../CustomOptionModal';
+import PaymentModal from '../PaymentModel';
+import axios from '../../api/axiosConfig';
+import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../../types';
 import Modal from 'react-modal';
 
 Modal.setAppElement('#root');
 
-const Home: React.FC = () => {
+const MenuHome: React.FC = () => {
+    const authContext = useContext(AuthContext);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [currentCategory, setCurrentCategory] = useState<number | null>(null);
     const [categories, setCategories] = useState<CategoryType[]>([]);
     const [currentMenuId, setCurrentMenuId] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
-    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
     const [currentSelectedProduct, setCurrentSelectedProduct] = useState<Product | null>(null);
     const [orderData, setOrderData] = useState<OrderModuleDTO | null>(null);
     const timerRef = useRef<{ resetTimer: () => void }>(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get('http://localhost:8080/api/menus/categories')
             .then(response => {
-                setCategories(response.data);
-                if (response.data.length > 0) {
-                    setCurrentCategory(response.data[0].id);
+                const updatedCategories = response.data.map((category: CategoryType) => ({
+                    ...category,
+                    visible: true // 기본적으로 모든 카테고리를 보이도록 설정
+                }));
+                setCategories(updatedCategories);
+                if (updatedCategories.length > 0) {
+                    setCurrentCategory(updatedCategories[0].id);
                 }
             })
             .catch(error => {
@@ -153,21 +160,28 @@ const Home: React.FC = () => {
     };
 
     const handleCheckoutClick = (orderData: OrderModuleDTO) => {
-        setOrderData(orderData);  // orderData 상태 설정
-        setIsPaymentModalOpen(true);  // 결제 모달을 열기 위해 상태를 true로 설정
-    };
-
-    const handlePaymentModalClose = () => {
-        setIsPaymentModalOpen(false);
-        setOrderData(null);  // orderData 초기화
+        setOrderData(orderData);
+        navigate('/payment', { state: { orderData, selectedProducts } });
     };
 
     const totalPrice = selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0);
 
+    const toggleCategoryVisibility = (categoryId: number) => {
+        setCategories(categories.map(category =>
+            category.id === categoryId ? { ...category, visible: !category.visible } : category
+        ));
+    };
+
     return (
         <div className="home">
             <Header />
-            <Category categories={categories} onCategoryClick={handleCategoryClick} />
+            <div>
+                <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
+            </div>
+            <Category
+                categories={categories.filter(category => category.visible)}
+                onCategoryClick={handleCategoryClick}
+            />
             {currentCategory && (
                 <ProductList
                     categoryId={currentCategory}
@@ -198,15 +212,8 @@ const Home: React.FC = () => {
                 totalPrice={totalPrice}
                 onCheckoutClick={handleCheckoutClick}
             />
-            {orderData && (
-                <PaymentModal
-                    isOpen={isPaymentModalOpen}
-                    onRequestClose={handlePaymentModalClose}
-                    orderData={orderData}  // orderData 상태를 PaymentModal에 전달
-                />
-            )}
         </div>
     );
 };
 
-export default Home;
+export default MenuHome;

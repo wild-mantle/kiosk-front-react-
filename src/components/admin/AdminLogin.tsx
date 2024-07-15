@@ -40,3 +40,5 @@ const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose }) => {
 };
 
 export default AdminLoginModal;
+
+// 이 코드는 현재 안쓰이는 코드 같네요.
