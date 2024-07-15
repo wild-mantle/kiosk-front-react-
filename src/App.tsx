@@ -11,7 +11,6 @@ import GuardPage from './components/GuardPage'; // GuardPage 추가
 const App: React.FC = () => {
     return (
         <AuthProvider>
-            <Router>
                 <Routes>
                     <Route path="/users/login" element={<Login />} />
                     <Route path="/sign_up" element={<SignUp />} />
@@ -19,9 +18,8 @@ const App: React.FC = () => {
                     <Route path="/menu" element={<PrivateRoute component={<MenuHome />} />} />
                     <Route path="/payment" element={<PrivateRoute component={<PaymentPage />} />} /> {/* PaymentPage 경로 추가 */}
                     <Route path="/guard" element={<PrivateRoute component={<GuardPage />} />} /> {/* GuardPage 경로 추가 */}
-                    <Route path="*" element={<Navigate to="/users/login" />} />
+                    {/*<Route path="*" element={<Navigate to="/users/login" />} />*/}
                 </Routes>
-            </Router>
         </AuthProvider>
     );
 };

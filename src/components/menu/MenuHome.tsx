@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import {AuthContext} from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Category from './Category';
@@ -16,6 +16,7 @@ import Modal from 'react-modal';
 Modal.setAppElement('#root');
 
 const MenuHome: React.FC = () => {
+    const authContext = useContext(AuthContext);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [currentCategory, setCurrentCategory] = useState<number | null>(null);
     const [categories, setCategories] = useState<CategoryType[]>([]);
