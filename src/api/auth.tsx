@@ -12,3 +12,12 @@ export const login = async (name: string, password: string) => {
         throw error;
     }
 };
+
+export const fetchStoreInfo = async (adminId: number) => {
+    try {
+        const response = await axios.get(`http://localhost:8080/api/kk/store/${adminId}`);
+        return response.data; // 성공 시 상점 정보 반환
+    } catch (error) {
+        throw error;
+    }
+};

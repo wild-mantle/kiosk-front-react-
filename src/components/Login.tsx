@@ -1,7 +1,8 @@
+// src/components/Login.tsx
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
-import { login } from '../api/auth';
+import { login, fetchStoreInfo } from '../api/auth';
 
 const Login: React.FC = () => {
     const authContext = useContext(AuthContext);
@@ -12,10 +13,15 @@ const Login: React.FC = () => {
 
     const handleLogin = async () => {
         try {
-            const token = await login(username, password);
+            const { message, adminId } = await login(username, password);
             authContext?.login();
-            localStorage.setItem('token', token); // JWT 토큰 저장
-            navigate('/main');
+            localStorage.setItem('adminId', adminId.toString()); // adminId 저장
+
+            // 로그인 후 adminId로 상점 정보 가져오기
+            const storeInfo = await fetchStoreInfo(adminId);
+            authContext?.setStoreInfo(storeInfo);
+
+            navigate('/kiosk-selection'); // 로그인 후 키오스크 선택 페이지로 이동
         } catch (err) {
             setError('Invalid name or password');
         }

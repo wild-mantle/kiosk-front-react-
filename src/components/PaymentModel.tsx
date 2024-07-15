@@ -3,6 +3,7 @@ import Modal from 'react-modal';
 import axios from 'axios';
 import { OrderModuleDTO } from '../types';
 import { loadScript } from './LoadScript';
+import './PaymentPage.css'; // 스타일을 위한 CSS 파일 임포트
 
 interface PaymentModalProps {
     isOpen: boolean;
@@ -25,28 +26,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onRequestClose, ord
         };
 
         loadIamportScript();
-    }, []);  // 빈 의존성 배열을 사용하여 컴포넌트 마운트 시 한 번만 실행
-
-    useEffect(() => {
-        const sendOrderData = async () => {
-            try {
-                console.log('Sending order data:', orderData);
-                const formattedOrderData = {
-                    ...orderData,
-                    price: orderData.price.toString() // Long 타입으로 맞춤
-                };
-
-                const response = await axios.post('http://localhost:8080/api/request_payment/check_out', formattedOrderData);
-                console.log('Order data sent successfully:', response.data);
-            } catch (error) {
-                console.error('Failed to send order data:', error);
-            }
-        };
-        // 이거 경고 어떻하지?? - 2024-07-10 윤성빈
-        if (isOpen && isScriptLoaded) {
-            sendOrderData();
-        }
-    }, [isOpen, isScriptLoaded, orderData]);  // isOpen과 isScriptLoaded가 변경될 때만 실행
+    }, []);
 
     const requestPay = () => {
         if (window.IMP) {
@@ -68,19 +48,20 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onRequestClose, ord
                 },
                 async (rsp: any) => {
                     if (rsp.success) {
-                        alert('결제 성공: ' + JSON.stringify(rsp));
+                        console.log('결제 성공:', rsp);
                         try {
-                            const response = await axios.post('/payment', {
+                            const response = await axios.post('http://localhost:8080/api/request_payment/check_out', {
                                 payment_uid: rsp.imp_uid, // 결제 고유번호
                                 order_uid: rsp.merchant_uid, // 주문번호
                             });
-                            console.log(response.data);
+                            console.log('서버 응답:', response.data);
                             alert('결제 완료!');
                         } catch (error) {
                             console.error('결제 검증 실패:', error);
                             alert('결제 검증 실패!');
                         }
                     } else {
+                        console.error('결제 실패:', rsp.error_msg);
                         alert('결제 실패: ' + rsp.error_msg);
                     }
                 }
@@ -90,34 +71,25 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onRequestClose, ord
         }
     };
 
-    const testPostConnection = async () => {
-        try {
-            const testData = {
-                id: 1,
-                price: "1000", // 문자열로 변환
-                storeName: "Test Store",
-                email: "test@example.com",
-                address: "123 Test St",
-                status: "READY",
-                paymentUid: "test_payment_uid",
-                orderUid: "test_order_uid"
-            };
-
-            const response = await axios.post('http://localhost:8080/api/request_payment/check_out', testData);
-            console.log('Response from server:', response.data);
-            alert('POST request successful');
-        } catch (error) {
-            console.error('Error connecting to the server:', error);
-            alert('POST request failed');
-        }
-    };
-
     return (
-        <Modal isOpen={isOpen} onRequestClose={onRequestClose} contentLabel="결제 모달">
-            <h2>결제 페이지</h2>
-            <button onClick={requestPay} disabled={!isScriptLoaded}>결제하기</button>
-            <button onClick={testPostConnection}>POST 테스트</button>
-            <button onClick={onRequestClose}>닫기</button>
+        <Modal
+            isOpen={isOpen}
+            onRequestClose={onRequestClose}
+            contentLabel="결제 모달"
+            className="custom-modal"
+            overlayClassName="custom-overlay"
+        >
+            <div className="modal-header">
+                <button className="modal-button" onClick={() => alert('먹고가기')}>먹고가기</button>
+                <button className="modal-button" onClick={() => alert('포장하기')}>포장하기</button>
+            </div>
+            <div className="modal-body">
+                <button className="modal-button" onClick={() => alert('포인트 적립')}>포인트 적립</button>
+            </div>
+            <div className="modal-footer">
+                <button className="payment-button" onClick={requestPay} disabled={!isScriptLoaded}>결제하기</button>
+                <button className="modal-button" onClick={onRequestClose}>닫기</button>
+            </div>
         </Modal>
     );
 };
