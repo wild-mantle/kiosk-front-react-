@@ -15,7 +15,7 @@ const Header: React.FC = () => {
     };
 
     const handleMainPage = () => {
-        navigate('/main');
+        navigate('/guard');
     };
 
     return (

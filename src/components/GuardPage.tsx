@@ -1,7 +1,7 @@
-// src/components/GuardPage.tsx
 import React, { useEffect, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
+import './GuardPage.css';
 
 const GuardPage: React.FC = () => {
     const navigate = useNavigate();
@@ -12,9 +12,18 @@ const GuardPage: React.FC = () => {
         authContext?.setUsePointSwitch(false);
     }, [authContext]);
 
+    const handleNavigation = (path: string) => {
+        navigate(path);
+    };
+
     return (
-        <div>
-            {/* GuardPage의 내용 */}
+        <div className="kiosk-main">
+            <h1>Welcome to Easy KIOSK</h1>
+            <div className="button-container">
+                <button onClick={() => handleNavigation('/menu')} className="kiosk-button">
+                    주문하기
+                </button>
+            </div>
         </div>
     );
 };
