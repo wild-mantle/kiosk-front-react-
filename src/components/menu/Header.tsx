@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import AdminLoginModal from '../admin/AdminLoginModal';
+import AdminLoginModal from '../admin/modals/AdminLoginModal';
 
 const Header: React.FC = () => {
     const [isAdminLoginOpen, setIsAdminLoginOpen] = useState(false);

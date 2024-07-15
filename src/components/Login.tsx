@@ -1,4 +1,3 @@
-// src/components/Login.tsx
 import React, { useContext, useState } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
@@ -16,6 +15,7 @@ const Login: React.FC = () => {
             const { message, adminId } = await login(username, password);
             authContext?.login();
             localStorage.setItem('adminId', adminId.toString()); // adminId 저장
+            localStorage.setItem('adminPassword', password); // 비밀번호 저장
 
             // 로그인 후 adminId로 상점 정보 가져오기
             const storeInfo = await fetchStoreInfo(adminId);

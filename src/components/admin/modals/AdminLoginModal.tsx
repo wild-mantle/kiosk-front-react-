@@ -14,7 +14,8 @@ const AdminLoginModal: React.FC<AdminLoginModalProps> = ({ onClose }) => {
     const [password, setPassword] = useState('');
 
     const handleLogin = () => {
-        if (password === 'admin1234') { // admin1234: 관리자 비밀번호
+        const storedPassword = localStorage.getItem('adminPassword');
+        if (password === storedPassword) {
             window.open('/admin/dashboard', '_blank'); // 관리자 대시보드를 새 창으로 엽니다.
             onClose();
         } else {
