@@ -13,6 +13,9 @@ import axios from '../../api/axiosConfig';
 import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../../types';
 import Modal from 'react-modal';
 
+import GetRemoteOrder from "../GetRemoteOrder"
+
+
 Modal.setAppElement('#root');
 
 const MenuHome: React.FC = () => {
@@ -178,6 +181,9 @@ const MenuHome: React.FC = () => {
             <div>
                 <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
             </div>
+
+            <GetRemoteOrder />
+
             <Category
                 categories={categories.filter(category => category.visible)}
                 onCategoryClick={handleCategoryClick}
