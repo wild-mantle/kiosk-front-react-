@@ -12,7 +12,7 @@ import PaymentModal from '../PaymentModel';
 import axios from '../../api/axiosConfig';
 import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../../types';
 import Modal from 'react-modal';
-import styled, { ThemeContext } from 'styled-components';
+import styled from 'styled-components';
 import GetRemoteOrder from "../GetRemoteOrder"
 
 Modal.setAppElement('#root');
@@ -34,7 +34,6 @@ const HomeWrapper = styled.div`
 
 const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dispatch<React.SetStateAction<boolean>> }> = ({ isHighContrast, setIsHighContrast }) => {
     const authContext = useContext(AuthContext);
-    const theme = useContext(ThemeContext);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [currentCategory, setCurrentCategory] = useState<number | null>(null);
     const [categories, setCategories] = useState<CategoryType[]>([]);
@@ -195,12 +194,8 @@ const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dis
 
     return (
         <HomeWrapper>
-            <Header />
-            <button onClick={toggleHighContrast}>Toggle High Contrast</button>
-            <div>
-                <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
-            </div>
-            <GetRemoteOrder />
+            <Header/>
+            <GetRemoteOrder/>
             <Category
                 categories={categories.filter(category => category.visible)}
                 onCategoryClick={handleCategoryClick}
@@ -229,12 +224,16 @@ const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dis
                 onIncreaseQuantity={(productId, options) => handleIncreaseQuantity(productId, options)}
                 onDecreaseQuantity={(productId, options) => handleDecreaseQuantity(productId, options)}
             />
-            <Timer ref={timerRef} />
+            <Timer ref={timerRef}/>
             <CheckoutButton
                 selectedProducts={selectedProducts}
                 totalPrice={totalPrice}
                 onCheckoutClick={handleCheckoutClick}
             />
+            <button onClick={toggleHighContrast}>Toggle High Contrast</button>
+            <div>
+                <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
+            </div>
         </HomeWrapper>
     );
 };
