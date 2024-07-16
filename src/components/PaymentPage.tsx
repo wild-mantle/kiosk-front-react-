@@ -105,6 +105,12 @@ const PaymentPage: React.FC = () => {
                             console.log('서버 응답:', response.data);
                             alert('결제 완료!');
 
+                            await axios.post('http://localhost:8080/api/orders/iamPortDto', {
+                                price: orderData.price,
+                                paymentUid: rsp.imp_uid, // 결제 고유번호
+                                orderUid: rsp.merchant_uid // 주문번호
+                            });
+
                             // 포인트 사용 및 적립 로직
                             if (authContext?.customerInfo) {
                                 if (authContext.usePointSwitch) {
