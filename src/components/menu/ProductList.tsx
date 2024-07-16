@@ -2,6 +2,14 @@ import React, { useEffect, useState } from 'react';
 import axios from '../../api/axiosConfig';
 import { Product } from '../../types';
 import ProductCard from './ProductCard';
+import styled from 'styled-components';
+
+const ProductListWrapper = styled.div`
+  grid-area: products;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+`;
 
 interface ProductListProps {
     categoryId: number | null;
@@ -9,7 +17,7 @@ interface ProductListProps {
 }
 
 const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick }) => {
-    const [products, setProducts] = useState<Product[]>([]); // Initialize as an empty array
+    const [products, setProducts] = useState<Product[]>([]);
 
     useEffect(() => {
         if (categoryId !== null) {
@@ -25,17 +33,17 @@ const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick })
                 })
                 .catch(error => {
                     console.error('There was an error fetching the products!', error);
-                    setProducts([]); // Set to an empty array on error
+                    setProducts([]);
                 });
         }
     }, [categoryId]);
 
     return (
-        <div className="product-list">
+        <ProductListWrapper>
             {products.map(product => (
                 <ProductCard key={product.id} product={product} onClick={() => onProductClick(product)} />
             ))}
-        </div>
+        </ProductListWrapper>
     );
 };
 

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
-import {AuthContext} from '../../context/AuthContext';
+import { AuthContext } from '../../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import Header from './Header';
 import Category from './Category';
@@ -12,14 +12,29 @@ import PaymentModal from '../PaymentModel';
 import axios from '../../api/axiosConfig';
 import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../../types';
 import Modal from 'react-modal';
-
+import styled, { ThemeContext } from 'styled-components';
 import GetRemoteOrder from "../GetRemoteOrder"
-
 
 Modal.setAppElement('#root');
 
-const MenuHome: React.FC = () => {
+const HomeWrapper = styled.div`
+    display: grid;
+    grid-template-areas:
+    "header"
+    "category"
+    "products"
+    "selected"
+    "timer"
+    "checkout";
+    gap: 1rem;
+    padding: 1rem;
+    background-color: ${({ theme }) => theme.bodyBgColor};
+    color: ${({ theme }) => theme.bodyColor};
+`;
+
+const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dispatch<React.SetStateAction<boolean>> }> = ({ isHighContrast, setIsHighContrast }) => {
     const authContext = useContext(AuthContext);
+    const theme = useContext(ThemeContext);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
     const [currentCategory, setCurrentCategory] = useState<number | null>(null);
     const [categories, setCategories] = useState<CategoryType[]>([]);
@@ -56,7 +71,6 @@ const MenuHome: React.FC = () => {
                     setCurrentMenuId(product.id);
                     setIsModalOpen(true);
                 } else {
-                    // Add product directly if no options are available
                     setSelectedProducts([...selectedProducts, { ...product, quantity: 1, options: [] }]);
                     if (timerRef.current) {
                         timerRef.current.resetTimer();
@@ -175,15 +189,18 @@ const MenuHome: React.FC = () => {
         ));
     };
 
+    const toggleHighContrast = () => {
+        setIsHighContrast(!isHighContrast);
+    };
+
     return (
-        <div className="home">
+        <HomeWrapper>
             <Header />
+            <button onClick={toggleHighContrast}>Toggle High Contrast</button>
             <div>
                 <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
             </div>
-
             <GetRemoteOrder />
-
             <Category
                 categories={categories.filter(category => category.visible)}
                 onCategoryClick={handleCategoryClick}
@@ -218,7 +235,7 @@ const MenuHome: React.FC = () => {
                 totalPrice={totalPrice}
                 onCheckoutClick={handleCheckoutClick}
             />
-        </div>
+        </HomeWrapper>
     );
 };
 

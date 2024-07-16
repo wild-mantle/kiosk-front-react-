@@ -1,5 +1,6 @@
 import React from 'react';
 import { Product, CustomOption } from '../../types';
+import styled from 'styled-components';
 
 interface SelectedItemsProps {
     selectedProducts: Product[];
@@ -8,59 +9,67 @@ interface SelectedItemsProps {
     onDecreaseQuantity: (productId: number, options: CustomOption[]) => void;
 }
 
-const groupOptions = (options: CustomOption[]) => {
-    const groupedOptions: { [key: string]: number } = {};
-    options.forEach(option => {
-        if (groupedOptions[option.name]) {
-            groupedOptions[option.name]++;
-        } else {
-            groupedOptions[option.name] = 1;
-        }
-    });
-    return groupedOptions;
-}
+const SelectedItemsWrapper = styled.div`
+  grid-area: selected;
+  border: 1px solid ${({ theme }) => theme.selectedBorderColor};
+  border-radius: 4px;
+  padding: 1rem;
+`;
+
+const ItemDetails = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const ItemName = styled.span`
+  font-weight: bold;
+`;
+
+const OptionName = styled.li`
+  padding-left: 1rem;
+`;
+
+const QuantityControls = styled.div`
+  display: flex;
+  gap: 0.5rem;
+`;
+
+const TotalPrice = styled.div`
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  font-weight: bold;
+`;
 
 const SelectedItems: React.FC<SelectedItemsProps> = ({ selectedProducts, onClear, onIncreaseQuantity, onDecreaseQuantity }) => {
     const totalPrice = selectedProducts.reduce((total, product) => total + product.price * product.quantity, 0);
 
     return (
-        <div className="selected-items">
+        <SelectedItemsWrapper>
             <h2>Selected Products</h2>
-
             <ul>
                 {selectedProducts.map((product, index) => (
-                    <li key={index} className="selected-item">
-                        <div className="item-details">
-                            <span className="item-name">{product.name} - {product.price}원 (수량: {product.quantity})</span>
-                            <div className="quantity-controls">
+                    <li key={index}>
+                        <ItemDetails>
+                            <ItemName>{product.name} - {product.price}원 (수량: {product.quantity})</ItemName>
+                            <QuantityControls>
                                 <button onClick={() => onIncreaseQuantity(product.id, product.options)}>+</button>
                                 <button onClick={() => onDecreaseQuantity(product.id, product.options)}>-</button>
-                            </div>
-                        </div>
+                            </QuantityControls>
+                        </ItemDetails>
                         <ul>
-                            {Object.entries(groupOptions(product.options)).map(([optionName, count], optIndex) => {
-                                const optionPrice = product.options.find(opt => opt.name === optionName)?.additionalPrice ?? 0;
-                                const displayPrice = optionPrice >= 0 ? `+${optionPrice}` : `${optionPrice}`;
-                                const totalOptionPrice = optionPrice * count;
-                                const displayTotalOptionPrice = totalOptionPrice >= 0 ? `+${totalOptionPrice}` : `${totalOptionPrice}`;
-                                return (
-                                    <li key={optIndex} className="option-name">
-                                        {optionName.startsWith('SIZE-')
-                                            ? `SIZE: ${optionName.replace('SIZE-', '')} (${displayPrice}원)`
-                                            : `${optionName} * ${count} (${displayTotalOptionPrice}원)`
-                                        }
-                                    </li>
-                                );
-                            })}
+                            {product.options.map((option, optIndex) => (
+                                <OptionName key={optIndex}>{option.name}</OptionName>
+                            ))}
                         </ul>
                     </li>
                 ))}
             </ul>
-            <div className="total-price">
+            <TotalPrice>
                 <strong>Total Price: {totalPrice}원</strong>
-            </div>
+            </TotalPrice>
             <button onClick={onClear}>전체삭제</button>
-        </div>
+        </SelectedItemsWrapper>
     );
 }
 

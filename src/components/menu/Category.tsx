@@ -1,20 +1,34 @@
 import React from 'react';
 import { Category as CategoryType } from '../../types';
+import styled from 'styled-components';
 
 interface CategoryProps {
     categories: CategoryType[];
     onCategoryClick: (categoryId: number) => void;
 }
 
+const CategoryWrapper = styled.nav`
+    display: flex;
+    justify-content: space-around;
+`;
+
+const CategoryButton = styled.button`
+    background-color: ${({ theme }) => theme.categoryBgColor};
+    color: ${({ theme }) => theme.categoryColor};
+    border: none;
+    padding: 1rem;
+    cursor: pointer;
+`;
+
 const Category: React.FC<CategoryProps> = ({ categories, onCategoryClick }) => {
     return (
-        <nav className="category">
+        <CategoryWrapper>
             {categories.map(category => (
-                <button key={category.id} className="category-button" onClick={() => onCategoryClick(category.id)}>
+                <CategoryButton key={category.id} onClick={() => onCategoryClick(category.id)}>
                     {category.name}
-                </button>
+                </CategoryButton>
             ))}
-        </nav>
+        </CategoryWrapper>
     );
 }
 
