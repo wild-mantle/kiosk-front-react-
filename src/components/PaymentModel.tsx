@@ -51,8 +51,8 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onRequestClose, ord
                         console.log('결제 성공:', rsp);
                         try {
                             const response = await axios.post('http://localhost:8080/api/request_payment/check_out', {
-                                payment_uid: rsp.imp_uid, // 결제 고유번호
                                 order_uid: rsp.merchant_uid, // 주문번호
+                                payment_uid: rsp.imp_uid, // 결제 고유번호
                             });
                             console.log('서버 응답:', response.data);
                             alert('결제 완료!');
