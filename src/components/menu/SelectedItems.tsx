@@ -10,35 +10,39 @@ interface SelectedItemsProps {
 }
 
 const SelectedItemsWrapper = styled.div`
-  grid-area: selected;
-  border: 1px solid ${({ theme }) => theme.selectedBorderColor};
-  border-radius: 4px;
-  padding: 1rem;
+    grid-area: selected;
+    border: 1px solid ${({ theme }) => theme.selectedBorderColor};
+    border-radius: 4px;
+    padding: 1rem;
+    background-color: ${({ theme }) => theme.selectedBgColor};
+    color: ${({ theme }) => theme.selectedColor};
 `;
 
 const ItemDetails = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
 `;
 
 const ItemName = styled.span`
-  font-weight: bold;
+    font-weight: bold;
+    flex: 1;
 `;
 
 const OptionName = styled.li`
-  padding-left: 1rem;
+    padding-left: 1rem;
 `;
 
 const QuantityControls = styled.div`
-  display: flex;
-  gap: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
 `;
 
 const TotalPrice = styled.div`
-  margin-top: 1rem;
-  font-size: 1.2rem;
-  font-weight: bold;
+    margin-top: 1rem;
+    font-size: 1.2rem;
+    font-weight: bold;
 `;
 
 const SelectedItems: React.FC<SelectedItemsProps> = ({ selectedProducts, onClear, onIncreaseQuantity, onDecreaseQuantity }) => {

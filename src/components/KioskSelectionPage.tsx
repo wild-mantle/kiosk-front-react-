@@ -1,5 +1,5 @@
-// src/components/KioskSelectionPage.tsx
 import React, { useState, useEffect, useContext } from 'react';
+import styled from 'styled-components';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
@@ -8,6 +8,42 @@ interface Kiosk {
     id: number;
     number: string;
 }
+
+const Container = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f7f7f7;
+`;
+
+const Title = styled.h2`
+    margin-bottom: 20px;
+    color: #333;
+`;
+
+const KioskList = styled.ul`
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 400px;
+`;
+
+const KioskItem = styled.li`
+    background-color: #007bff;
+    color: white;
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 18px;
+    cursor: pointer;
+    &:hover {
+        background-color: #0056b3;
+    }
+`;
 
 const KioskSelectionPage: React.FC = () => {
     const [kiosks, setKiosks] = useState<Kiosk[]>([]);
@@ -18,13 +54,13 @@ const KioskSelectionPage: React.FC = () => {
         const fetchKiosks = async () => {
             try {
                 const adminId = localStorage.getItem('adminId');
-                console.log('adminId:', adminId); // 콘솔에 adminId 출력
+                console.log('adminId:', adminId);
                 if (!adminId) {
                     console.error('No adminId found in localStorage');
                     return;
                 }
                 const response = await axios.get(`http://localhost:8080/api/kiosks/${adminId}/kiosks`);
-                console.log('Fetched kiosks:', response.data); // 콘솔에 fetched kiosks 출력
+                console.log('Fetched kiosks:', response.data);
                 setKiosks(response.data);
             } catch (error) {
                 console.error('Failed to fetch kiosks', error);
@@ -35,22 +71,22 @@ const KioskSelectionPage: React.FC = () => {
     }, []);
 
     const handleKioskSelect = (kiosk: Kiosk) => {
-        console.log('Selected kiosk:', kiosk); // 콘솔에 선택한 키오스크 출력
+        console.log('Selected kiosk:', kiosk);
         authContext?.setKioskInfo(kiosk);
         navigate('/guard');
     };
 
     return (
-        <div>
-            <h2>키오스크 선택</h2>
-            <ul>
+        <Container>
+            <Title>키오스크 선택</Title>
+            <KioskList>
                 {kiosks.map((kiosk) => (
-                    <li key={kiosk.id} onClick={() => handleKioskSelect(kiosk)}>
+                    <KioskItem key={kiosk.id} onClick={() => handleKioskSelect(kiosk)}>
                         {kiosk.number}
-                    </li>
+                    </KioskItem>
                 ))}
-            </ul>
-        </div>
+            </KioskList>
+        </Container>
     );
 };
 

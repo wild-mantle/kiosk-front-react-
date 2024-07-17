@@ -10,18 +10,25 @@ export const lightTheme = {
     timerColor: 'red',
     checkoutBgColor: '#555',
     checkoutColor: 'white',
+    checkoutHoverBgColor: '#333',
+    bodyBgColor: '#ffffff',
+    bodyColor: '#000000'
 };
 
 export const highContrastTheme = {
-    headerBgColor: 'black',
-    headerColor: 'yellow',
-    categoryBgColor: 'black',
-    categoryColor: 'yellow',
+    headerBgColor: 'yellow',
+    headerColor: '#333333',
+    categoryBgColor: 'yellow',
+    categoryColor: '#333333',
     productBorderColor: 'yellow',
     productTextColor: 'yellow',
     selectedBorderColor: 'yellow',
     timerBorderColor: 'yellow',
     timerColor: 'yellow',
     checkoutBgColor: 'yellow',
-    checkoutColor: 'black',
+    checkoutColor: '#333333',
+    checkoutHoverBgColor: 'gray',
+    bodyBgColor: 'gray',
+    bodyColor: '#ffff00',
+    selectedColor: 'purple'
 };

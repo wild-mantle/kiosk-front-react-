@@ -12,8 +12,9 @@ import PaymentModal from '../PaymentModel';
 import axios from '../../api/axiosConfig';
 import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../../types';
 import Modal from 'react-modal';
-import styled from 'styled-components';
-import GetRemoteOrder from "../GetRemoteOrder"
+import styled, { ThemeProvider } from 'styled-components';
+import GetRemoteOrder from "../GetRemoteOrder";
+import { lightTheme, highContrastTheme } from '../../themes';
 
 Modal.setAppElement('#root');
 
@@ -25,11 +26,50 @@ const HomeWrapper = styled.div`
     "products"
     "selected"
     "timer"
-    "checkout";
+    "footer";
     gap: 1rem;
     padding: 1rem;
     background-color: ${({ theme }) => theme.bodyBgColor};
     color: ${({ theme }) => theme.bodyColor};
+`;
+
+const FooterWrapper = styled.div`
+    display: grid;
+    grid-area: footer;
+    grid-template-columns: 3fr 7fr;
+    align-items: center;
+    gap: 1rem;
+`;
+
+const ToggleButton = styled.button`
+    background-color: ${({ theme }) => theme.checkoutBgColor};
+    color: ${({ theme }) => theme.checkoutColor};
+    border: none;
+    padding: 1rem;
+    cursor: pointer;
+    &:hover {
+        background-color: ${({ theme }) => theme.checkoutHoverBgColor};
+    }
+`;
+
+const TimerWrapper = styled.div`
+    grid-area: timer;
+    border: 1px solid ${({ theme }) => theme.timerBorderColor};
+    border-radius: 4px;
+    padding: 1rem;
+    text-align: center;
+    color: ${({ theme }) => theme.timerColor};
+`;
+
+const CheckoutButtonWrapper = styled.button`
+    background-color: ${({ theme }) => theme.checkoutBgColor};
+    color: ${({ theme }) => theme.checkoutColor};
+    border: none;
+    padding: 1rem;
+    cursor: pointer;
+    &:hover {
+        background-color: ${({ theme }) => theme.checkoutHoverBgColor};
+    }
 `;
 
 const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dispatch<React.SetStateAction<boolean>> }> = ({ isHighContrast, setIsHighContrast }) => {
@@ -193,48 +233,52 @@ const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dis
     };
 
     return (
-        <HomeWrapper>
-            <Header/>
-            <GetRemoteOrder/>
-            <Category
-                categories={categories.filter(category => category.visible)}
-                onCategoryClick={handleCategoryClick}
-            />
-            {currentCategory && (
-                <ProductList
-                    categoryId={currentCategory}
-                    onProductClick={handleProductClick}
+        <ThemeProvider theme={isHighContrast ? highContrastTheme : lightTheme}>
+            <HomeWrapper>
+                <Header />
+                <GetRemoteOrder />
+                <Category
+                    categories={categories.filter(category => category.visible)}
+                    onCategoryClick={handleCategoryClick}
                 />
-            )}
-            {currentMenuId && currentSelectedProduct && (
-                <CustomOptionModal
-                    isOpen={isModalOpen}
-                    onRequestClose={handleModalClose}
-                    onRequestCancel={handleModalCancel}
-                    menuId={currentMenuId}
-                    selectedProduct={currentSelectedProduct}
-                    onAddOption={handleAddOption}
-                    onRemoveOption={handleRemoveOption}
-                    onUpdateProduct={(updatedProduct: Product) => setCurrentSelectedProduct(updatedProduct)}
+                {currentCategory && (
+                    <ProductList
+                        categoryId={currentCategory}
+                        onProductClick={handleProductClick}
+                    />
+                )}
+                {currentMenuId && currentSelectedProduct && (
+                    <CustomOptionModal
+                        isOpen={isModalOpen}
+                        onRequestClose={handleModalClose}
+                        onRequestCancel={handleModalCancel}
+                        menuId={currentMenuId}
+                        selectedProduct={currentSelectedProduct}
+                        onAddOption={handleAddOption}
+                        onRemoveOption={handleRemoveOption}
+                        onUpdateProduct={(updatedProduct: Product) => setCurrentSelectedProduct(updatedProduct)}
+                    />
+                )}
+                <SelectedItems
+                    selectedProducts={selectedProducts}
+                    onClear={() => setSelectedProducts([])}
+                    onIncreaseQuantity={(productId, options) => handleIncreaseQuantity(productId, options)}
+                    onDecreaseQuantity={(productId, options) => handleDecreaseQuantity(productId, options)}
                 />
-            )}
-            <SelectedItems
-                selectedProducts={selectedProducts}
-                onClear={() => setSelectedProducts([])}
-                onIncreaseQuantity={(productId, options) => handleIncreaseQuantity(productId, options)}
-                onDecreaseQuantity={(productId, options) => handleDecreaseQuantity(productId, options)}
-            />
-            <Timer ref={timerRef}/>
-            <CheckoutButton
-                selectedProducts={selectedProducts}
-                totalPrice={totalPrice}
-                onCheckoutClick={handleCheckoutClick}
-            />
-            <button onClick={toggleHighContrast}>Toggle High Contrast</button>
-            <div>
-                <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
-            </div>
-        </HomeWrapper>
+                <TimerWrapper>
+                    <Timer ref={timerRef} />
+                </TimerWrapper>
+                <FooterWrapper>
+                    <ToggleButton onClick={toggleHighContrast}>Toggle High Contrast</ToggleButton>
+                    <CheckoutButtonWrapper onClick={() => handleCheckoutClick}>
+                        Checkout
+                    </CheckoutButtonWrapper>
+                </FooterWrapper>
+                <div>
+                    <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
+                </div>
+            </HomeWrapper>
+        </ThemeProvider>
     );
 };
 
