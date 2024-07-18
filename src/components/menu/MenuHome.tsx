@@ -61,17 +61,6 @@ const TimerWrapper = styled.div`
     color: ${({ theme }) => theme.timerColor};
 `;
 
-const CheckoutButtonWrapper = styled.button`
-    background-color: ${({ theme }) => theme.checkoutBgColor};
-    color: ${({ theme }) => theme.checkoutColor};
-    border: none;
-    padding: 1rem;
-    cursor: pointer;
-    &:hover {
-        background-color: ${({ theme }) => theme.checkoutHoverBgColor};
-    }
-`;
-
 const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dispatch<React.SetStateAction<boolean>> }> = ({ isHighContrast, setIsHighContrast }) => {
     const authContext = useContext(AuthContext);
     const [selectedProducts, setSelectedProducts] = useState<Product[]>([]);
@@ -270,9 +259,6 @@ const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dis
                 </TimerWrapper>
                 <FooterWrapper>
                     <ToggleButton onClick={toggleHighContrast}>Toggle High Contrast</ToggleButton>
-                    {/*<CheckoutButtonWrapper onClick={() => handleCheckoutClick}>
-                        Checkout
-                    </CheckoutButtonWrapper>*/}
                     <CheckoutButton
                         selectedProducts={selectedProducts}
                         totalPrice={totalPrice}

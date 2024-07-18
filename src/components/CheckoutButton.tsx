@@ -4,12 +4,14 @@ import axios from "axios";
 import styled from 'styled-components';
 
 const CheckoutButtonWrapper = styled.button`
-    grid-area: checkout;
     background-color: ${({ theme }) => theme.checkoutBgColor};
     color: ${({ theme }) => theme.checkoutColor};
     border: none;
     padding: 1rem;
     cursor: pointer;
+    &:hover {
+        background-color: ${({ theme }) => theme.checkoutHoverBgColor};
+    }
 `;
 
 interface CheckoutButtonProps {
