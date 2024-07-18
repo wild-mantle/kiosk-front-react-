@@ -3,6 +3,7 @@ import { Link, Routes, Route } from 'react-router-dom';
 import CategoryManagement from './CategoryManagement';
 import OptionManagement from './OptionManagement';
 import ProductManagement from './ProductManagement';
+import RefundManagement from './RefundManagement';
 import './AdminDashboard.css';
 
 /**
@@ -19,6 +20,7 @@ const AdminDashboard: React.FC = () => {
                     <li><Link to="/admin/category">카테고리 관리</Link></li>
                     <li><Link to="/admin/option">옵션 관리</Link></li>
                     <li><Link to="/admin/product">상품 관리</Link></li>
+                    <li><Link to="/admin/payment">주문 환불</Link></li>
                 </ul>
             </nav>
             <div className="admin-content">
@@ -26,6 +28,7 @@ const AdminDashboard: React.FC = () => {
                     <Route path="category" element={<CategoryManagement />} />
                     <Route path="option" element={<OptionManagement />} />
                     <Route path="product" element={<ProductManagement />} />
+                    <Route path="payment" element={<RefundManagement />} />
                 </Routes>
             </div>
         </div>
