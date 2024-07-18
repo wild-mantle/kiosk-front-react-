@@ -8,6 +8,7 @@ import { AuthContext } from '../context/AuthContext';
 import './PaymentPage.css';
 import PointModal from './PointModal';
 import PasswordModal from './PasswordModal';
+import passwordModal from "./PasswordModal";
 
 interface LocationState {
     orderData: OrderModuleDTO;
@@ -50,105 +51,6 @@ const PaymentPage: React.FC = () => {
 
     const handlePackagedClick = (isPackaged: boolean) => {
         setIsPackaged(isPackaged);
-    };
-
-    const requestPay = () => {
-        if (isPackaged === undefined) {
-            setHighlightButtons(true);
-            setTimeout(() => setHighlightButtons(false), 10000);
-            return;
-        }
-
-        if (window.IMP) {
-            const { IMP } = window;
-            IMP.init('imp55148327'); // 가맹점 식별코드
-
-            IMP.request_pay(
-                {
-                    pg: 'html5_inicis.INIpayTest',
-                    pay_method: 'card',
-                    merchant_uid: orderData.orderUid, // 주문 번호
-                    name: orderData.storeName, // 상품 이름
-                    amount: finalTotalPrice, // 최종 결제 금액
-                    buyer_email: orderData.email, // 구매자 이메일
-                    buyer_name: orderData.storeName, // 구매자 이름
-                    buyer_tel: '010-1234-5678', // 임의의 값
-                    buyer_addr: orderData.address, // 구매자 주소
-                    buyer_postcode: '123-456', // 임의의 값
-                },
-                async (rsp: any) => {
-                    if (rsp.success) {
-                        console.log('결제 성공:', rsp);
-                        try {
-                            // 결제 성공 시 주문 생성
-                            const order = {
-                                customer: {
-                                    id: authContext?.customerInfo?.id || 1,
-                                    name: authContext?.customerInfo?.name || 'not registered',
-                                    phoneNumber: authContext?.customerInfo?.phoneNumber || 'none',
-                                    points: authContext?.customerInfo?.points || 0,
-                                    email: orderData.email,
-                                    address: orderData.address
-                                },
-                                kiosk: {
-                                    id: authContext?.kioskInfo?.id,
-                                    number: authContext?.kioskInfo?.number,
-                                    store: { storeID: authContext?.storeInfo?.id } // Store 객체를 적절히 설정해야 함
-                                },
-                                dateTime: new Date(),
-                                totalPrice: orderData.price,
-                                isPackaged: isPackaged, // 포장 여부 설정
-                                orderUid: orderData.orderUid
-                            };
-
-                            const response = await axios.post('http://localhost:8080/api/orders', order);
-                            console.log('서버 응답:', response.data);
-                            alert('결제 완료!');
-
-                            await axios.post('http://localhost:8080/api/orders/iamPortDto', {
-                                price: orderData.price,
-                                paymentUid: rsp.imp_uid, // 결제 고유번호
-                                orderUid: rsp.merchant_uid // 주문번호
-                            });
-
-                            // 포인트 사용 및 적립 로직
-                            if (authContext?.customerInfo) {
-                                if (authContext.usePointSwitch) {
-                                    // 포인트 사용 로직
-                                    await axios.post('http://localhost:8080/api/customer/usePoints', {
-                                        phoneNumber: authContext.customerInfo.phoneNumber,
-                                        totalPrice: orderData.price,
-                                        pointsToUse: points
-                                    });
-                                    console.log('포인트가 사용되었습니다.');
-                                }
-
-                                // 포인트 적립 로직
-                                const pointsToAdd = Math.floor(orderData.price * 0.01);
-                                await axios.post('http://localhost:8080/api/customer/addPoints', {
-                                    phoneNumber: authContext.customerInfo.phoneNumber,
-                                    totalPrice: orderData.price,
-                                    pointsToUse: 0 // 적립할 때는 사용 포인트는 0으로 설정
-                                });
-                                console.log('포인트가 적립되었습니다.');
-                            } else {
-                                console.log('비회원 결제');
-                            }
-
-                            navigate('/home'); // 결제 완료 후 홈으로 이동
-                        } catch (error) {
-                            console.error('주문 생성 실패:', error);
-                            alert('주문 생성 실패!');
-                        }
-                    } else {
-                        console.error('결제 실패:', rsp.error_msg);
-                        alert('결제 실패: ' + rsp.error_msg);
-                    }
-                }
-            );
-        } else {
-            console.error('Iamport object is not found.');
-        }
     };
 
     const handlePointModalOpen = () => {
@@ -276,6 +178,93 @@ const PaymentPage: React.FC = () => {
         console.log('포인트 사용 안함');
     };
 
+    const requestPay = () => {
+        if (isPackaged === undefined) {
+            setHighlightButtons(true);
+            setTimeout(() => setHighlightButtons(false), 10000);
+            return;
+        }
+
+        if (window.IMP) {
+            const { IMP } = window;
+            IMP.init('imp55148327'); // 가맹점 식별코드
+
+            IMP.request_pay(
+                {
+                    pg: 'html5_inicis.INIpayTest',
+                    pay_method: 'card',
+                    merchant_uid: orderData.orderUid, // 주문 번호
+                    name: orderData.storeName, // 상품 이름
+                    amount: finalTotalPrice, // 최종 결제 금액
+                    buyer_email: orderData.email, // 구매자 이메일
+                    buyer_name: orderData.storeName, // 구매자 이름
+                    buyer_tel: '010-1234-5678', // 임의의 값
+                    buyer_addr: orderData.address, // 구매자 주소
+                    buyer_postcode: '123-456', // 임의의 값
+                },
+                async (rsp: any) => {
+                    if (rsp.success) {
+                        console.log('결제 성공:', rsp);
+                        await axios.post('http://localhost:8080/api/orders/iamPortDto', {
+                            price: orderData.price,
+                            paymentUid: rsp.imp_uid, // 결제 고유번호
+                            orderUid: rsp.merchant_uid // 주문번호
+                        });
+                        try {
+                            // 결제 성공 시 주문 생성
+                            const orderDTO = {
+                                customerId: authContext?.customerInfo?.id || 1,
+                                kioskId: authContext?.kioskInfo?.id,
+                                datetime: new Date(),
+                                totalPrice: orderData.price,
+                                packaged: isPackaged, // 포장 여부 설정
+                                paymentUid: rsp.imp_uid
+                            };
+
+                            const response = await axios.post('http://localhost:8080/api/orders', orderDTO);
+                            console.log('서버 응답:', response.data);
+                            alert('결제 완료!');
+
+                            // 포인트 사용 및 적립 로직
+                            if (authContext?.customerInfo) {
+                                if (authContext.usePointSwitch) {
+                                    // 포인트 사용 로직
+                                    await axios.post('http://localhost:8080/api/customer/usePoints', {
+                                        phoneNumber: authContext.customerInfo.phoneNumber,
+                                        totalPrice: orderData.price,
+                                        pointsToUse: points
+                                    });
+                                    console.log('포인트가 사용되었습니다.');
+                                }
+
+                                // 포인트 적립 로직
+                                const pointsToAdd = Math.floor(orderData.price * 0.01);
+                                await axios.post('http://localhost:8080/api/customer/addPoints', {
+                                    phoneNumber: authContext.customerInfo.phoneNumber,
+                                    totalPrice: orderData.price,
+                                    pointsToUse: 0 // 적립할 때는 사용 포인트는 0으로 설정
+                                });
+                                console.log('포인트가 적립되었습니다.');
+                            } else {
+                                console.log('비회원 결제');
+                            }
+
+                            navigate('/home'); // 결제 완료 후 홈으로 이동
+                        } catch (error) {
+                            console.error('주문 생성 실패:', error);
+                            alert('주문 생성 실패!');
+                        }
+                    } else {
+                        console.error('결제 실패:', rsp.error_msg);
+                        alert('결제 실패: ' + rsp.error_msg);
+                    }
+                }
+            );
+        } else {
+            console.error('Iamport object is not found.');
+        }
+    };
+
     const handleTestButtonClick = () => {
         console.log('현재 주문 데이터:', orderData);
         const order = {
@@ -371,3 +360,4 @@ const PaymentPage: React.FC = () => {
 };
 
 export default PaymentPage;
+
