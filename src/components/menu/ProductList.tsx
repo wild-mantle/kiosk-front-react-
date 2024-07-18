@@ -64,7 +64,10 @@ const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick })
                 .then(response => {
                     const data = response.data;
                     if (Array.isArray(data)) {
-                        setProducts(data);
+                        setProducts(data.map((product: any) => ({
+                            ...product,
+                            imageUrl: product.image // Ensure the imageUrl field is correctly mapped
+                        })));
                         setStartIndex(0); // Reset startIndex when category changes
                     } else {
                         console.error('API response is not an array', data);

@@ -19,10 +19,17 @@ const ProductCardWrapper = styled.div`
     box-sizing: border-box;
 `;
 
+const ProductImage = styled.img`
+    width: 200px; // 원하는 고정 너비
+    height: 200px; // 원하는 고정 높이
+    object-fit: cover; // 이미지가 부모 요소의 크기에 맞춰지도록 조정합니다.
+    border-radius: 4px;
+`;
 
 const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
     return (
         <ProductCardWrapper onClick={onClick}>
+            <ProductImage src={product.imageUrl} alt={product.name} />
             <h2>{product.name}</h2>
             <p>{product.price}원</p>
             <p>{product.description}</p>

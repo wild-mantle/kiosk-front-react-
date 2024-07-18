@@ -4,6 +4,7 @@ export interface Product {
     price: number;
     description: string;
     quantity: number;
+    imageUrl: string;
     options: CustomOption[];
 }
 
