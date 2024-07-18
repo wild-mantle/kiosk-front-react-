@@ -4,12 +4,12 @@ import axios from "axios";
 import styled from 'styled-components';
 
 const CheckoutButtonWrapper = styled.button`
-  grid-area: checkout;
-  background-color: ${({ theme }) => theme.checkoutBgColor};
-  color: ${({ theme }) => theme.checkoutColor};
-  border: none;
-  padding: 1rem;
-  cursor: pointer;
+    grid-area: checkout;
+    background-color: ${({ theme }) => theme.checkoutBgColor};
+    color: ${({ theme }) => theme.checkoutColor};
+    border: none;
+    padding: 1rem;
+    cursor: pointer;
 `;
 
 interface CheckoutButtonProps {
@@ -46,7 +46,7 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({ selectedProducts, total
 
     return (
         <CheckoutButtonWrapper onClick={handleCheckout}>
-            결제하기
+            Checkout
         </CheckoutButtonWrapper>
     );
 };
