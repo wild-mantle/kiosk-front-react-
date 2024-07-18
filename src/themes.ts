@@ -28,7 +28,7 @@ export const highContrastTheme = {
     checkoutBgColor: 'yellow',
     checkoutColor: '#333333',
     checkoutHoverBgColor: 'gray',
-    bodyBgColor: 'gray',
+    bodyBgColor: 'black',
     bodyColor: '#ffff00',
     selectedColor: 'purple'
 };
