@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
 import axios from '../api/axiosConfig';
 import { CustomOption, Product } from '../types';
+import styled from 'styled-components';
 
 interface CustomOptionModalProps {
     isOpen: boolean;
@@ -118,59 +119,161 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
 
     return (
         <Modal isOpen={isOpen} onRequestClose={handleCancel} contentLabel="Custom Options">
-            <h2>추가 옵션 선택</h2>
-            <div className="custom-options">
-                {options.filter(opt => opt.name !== 'SIZE').map(option => (
-                    <div key={option.id} className="custom-option">
-                        <span>{option.name}</span>
-                        <span>{option.additionalPrice}원</span>
-                        {option.name.includes('추가') ? (
-                            <>
-                                <span>수량: {selectedOptions[option.id] || 0}</span>
-                                <button onClick={() => handleAddOption(option)}>추가</button>
-                                <button onClick={() => handleRemoveOption(option)}>제거</button>
-                            </>
-                        ) : (
-                            <input
-                                type="radio"
-                                id={`option-${option.id}`}
-                                name="custom-option"
-                                value={option.name}
-                                onChange={() => handleAddOption(option)}
-                            />
-                        )}
-                    </div>
-                ))}
-                {sizeOptionsAvailable && (
-                    <div className="size-options">
-                        <h3>사이즈 선택</h3>
-                        {['large', 'medium', 'small'].map(size => {
-                            const additionalPrice = getSizeAdditionalPrice(size);
-                            return (
-                                <div key={size} className="size-option">
-                                    <input
-                                        type="radio"
-                                        id={size}
-                                        name="size"
-                                        value={size}
-                                        checked={selectedSize === size}
-                                        onChange={() => handleSizeChange(size)}
-                                    />
-                                    <label htmlFor={size}>{size}</label>
-                                    <span>{additionalPrice}원</span>
-                                </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </div>
-            <div className="total-price">
-                <strong>총 가격: {totalPrice}원</strong>
-            </div>
-            <button onClick={handleClose}>완료</button>
-            <button onClick={handleCancel}>취소</button>
+            <ModalContent>
+                <h2>추가 옵션 선택</h2>
+                <OptionsContainer>
+                    {options.filter(opt => opt.name !== 'SIZE').map(option => (
+                        <OptionItem key={option.id}>
+                            <OptionName>{option.name}</OptionName>
+                            <OptionPrice>{option.additionalPrice}원</OptionPrice>
+                            {option.name.includes('추가') ? (
+                                <>
+                                    <OptionQuantity>수량: {selectedOptions[option.id] || 0}</OptionQuantity>
+                                    <OptionButtonGroup>
+                                        <OptionButton onClick={() => handleAddOption(option)}>추가</OptionButton>
+                                        <OptionButton onClick={() => handleRemoveOption(option)}>제거</OptionButton>
+                                    </OptionButtonGroup>
+                                </>
+                            ) : (
+                                <input
+                                    type="radio"
+                                    id={`option-${option.id}`}
+                                    name="custom-option"
+                                    value={option.name}
+                                    onChange={() => handleAddOption(option)}
+                                />
+                            )}
+                        </OptionItem>
+                    ))}
+                    {sizeOptionsAvailable && (
+                        <SizeOptionsContainer>
+                            <h3>사이즈 선택</h3>
+                            {['large', 'medium', 'small'].map(size => {
+                                const additionalPrice = getSizeAdditionalPrice(size);
+                                return (
+                                    <SizeOptionItem key={size}>
+                                        <input
+                                            type="radio"
+                                            id={size}
+                                            name="size"
+                                            value={size}
+                                            checked={selectedSize === size}
+                                            onChange={() => handleSizeChange(size)}
+                                        />
+                                        <label htmlFor={size}>{size}</label>
+                                        <span>{additionalPrice}원</span>
+                                    </SizeOptionItem>
+                                );
+                            })}
+                        </SizeOptionsContainer>
+                    )}
+                </OptionsContainer>
+                <TotalPrice>
+                    <strong>총 가격: {totalPrice}원</strong>
+                </TotalPrice>
+                <ButtonGroup>
+                    <ModalButton onClick={handleClose}>완료</ModalButton>
+                    <ModalButton onClick={handleCancel}>취소</ModalButton>
+                </ButtonGroup>
+            </ModalContent>
         </Modal>
     );
 };
 
 export default CustomOptionModal;
+
+const ModalContent = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    max-width: 500px;
+    margin: 0 auto;
+`;
+
+const OptionsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+`;
+
+const OptionItem = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+`;
+
+const OptionName = styled.span`
+    flex: 1;
+`;
+
+const OptionPrice = styled.span`
+    flex: 1;
+    text-align: right;
+`;
+
+const OptionQuantity = styled.span`
+    flex: 1;
+    text-align: right;
+    margin-right: 10px; /* Add margin to create space between quantity text and buttons */
+`;
+
+const OptionButtonGroup = styled.div`
+    display: flex;
+    gap: 5px;
+`;
+
+const OptionButton = styled.button`
+    background-color: #FF5733;
+    color: white;
+    border: none;
+    padding: 5px 20px;
+    cursor: pointer;
+    &:hover {
+        background-color: #e04e2a;
+    }
+`;
+
+const SizeOptionsContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+`;
+
+const SizeOptionItem = styled.div`
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+`;
+
+const TotalPrice = styled.div`
+    margin-top: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+`;
+
+const ButtonGroup = styled.div`
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    margin-top: 20px;
+`;
+
+const ModalButton = styled.button`
+    background-color: #555;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    &:hover {
+        background-color: #333;
+    }
+`;

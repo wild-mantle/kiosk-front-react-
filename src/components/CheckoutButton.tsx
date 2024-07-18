@@ -1,9 +1,16 @@
-import React, {useContext} from 'react';
-import { Product, OrderModuleDTO, PaymentStatus } from '../types';
+import React, { useContext } from 'react';
+import { Product, OrderModuleDTO } from '../types';
 import axios from "axios";
-import {AuthContext} from "../context/AuthContext";
-import {Simulate} from "react-dom/test-utils";
-import error = Simulate.error;
+import styled from 'styled-components';
+
+const CheckoutButtonWrapper = styled.button`
+  grid-area: checkout;
+  background-color: ${({ theme }) => theme.checkoutBgColor};
+  color: ${({ theme }) => theme.checkoutColor};
+  border: none;
+  padding: 1rem;
+  cursor: pointer;
+`;
 
 interface CheckoutButtonProps {
     selectedProducts: Product[];
@@ -19,7 +26,7 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({ selectedProducts, total
                 const data = response.data;
                 console.log(data);
                 const orderData: OrderModuleDTO = {
-                    id: data.id, // 이 값을 적절하게 설정하세요
+                    id: data.id,
                     price: totalPrice,
                     storeName: data.storeName,
                     email: data.email,
@@ -38,9 +45,9 @@ const CheckoutButton: React.FC<CheckoutButtonProps> = ({ selectedProducts, total
     };
 
     return (
-        <button className="checkout-button" onClick={handleCheckout}>
+        <CheckoutButtonWrapper onClick={handleCheckout}>
             결제하기
-        </button>
+        </CheckoutButtonWrapper>
     );
 };
 

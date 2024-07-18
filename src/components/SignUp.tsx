@@ -1,6 +1,59 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components';
+import { useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axiosConfig';
+
+const SignUpContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f7f7f7;
+`;
+
+const Title = styled.h2`
+    margin-bottom: 20px;
+    color: #333;
+`;
+
+const Input = styled.input`
+    width: 300px;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+`;
+
+const Button = styled.button`
+    width: 300px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #FF5733;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    &:hover {
+        background-color: #e04e2a;
+    }
+`;
+
+const Message = styled.p<{ isSuccess: boolean }>`
+    color: ${({ isSuccess }) => (isSuccess ? 'green' : 'red')};
+    margin-bottom: 10px;
+`;
+
+const LoginLink = styled(Link)`
+    margin-top: 10px;
+    color: #FF5733;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+`;
 
 const SignUp: React.FC = () => {
     const [username, setUsername] = useState<string>('');
@@ -24,29 +77,30 @@ const SignUp: React.FC = () => {
     };
 
     return (
-        <div>
-            <h2>회원가입</h2>
-            {message && <p style={{ color: message === 'Sign up successful' ? 'green' : 'red' }}>{message}</p>}
-            <input
+        <SignUpContainer>
+            <Title>회원가입</Title>
+            {message && <Message isSuccess={message === 'Sign up successful'}>{message}</Message>}
+            <Input
                 type="text"
                 placeholder="아이디"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
             />
-            <input
+            <Input
                 type="password"
                 placeholder="비밀번호"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
-            <input
+            <Input
                 type="email"
                 placeholder="이메일"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
             />
-            <button onClick={handleSignUp}>회원가입</button>
-        </div>
+            <Button onClick={handleSignUp}>회원가입</Button>
+            <LoginLink to="/login">로그인 페이지로 돌아가기</LoginLink>
+        </SignUpContainer>
     );
 };
 

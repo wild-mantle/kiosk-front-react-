@@ -1,7 +1,60 @@
 import React, { useContext, useState } from 'react';
+import styled from 'styled-components';
 import { AuthContext } from '../context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { login, fetchStoreInfo } from '../api/auth';
+
+const LoginContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-color: #f7f7f7;
+`;
+
+const Title = styled.h2`
+    margin-bottom: 20px;
+    color: #333;
+`;
+
+const Input = styled.input`
+    width: 300px;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+`;
+
+const Button = styled.button`
+    width: 300px;
+    padding: 10px;
+    margin: 10px 0;
+    background-color: #FF5733;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    &:hover {
+        background-color: #e04e2a;
+    }
+`;
+
+const Error = styled.p`
+    color: red;
+    margin-bottom: 10px;
+`;
+
+const SignUpLink = styled(Link)`
+    margin-top: 10px;
+    color: #FF5733;
+    text-decoration: none;
+    &:hover {
+        text-decoration: underline;
+    }
+`;
 
 const Login: React.FC = () => {
     const authContext = useContext(AuthContext);
@@ -14,38 +67,37 @@ const Login: React.FC = () => {
         try {
             const { message, adminId } = await login(username, password);
             authContext?.login();
-            localStorage.setItem('adminId', adminId.toString()); // adminId 저장
-            localStorage.setItem('adminPassword', password); // 비밀번호 저장
+            localStorage.setItem('adminId', adminId.toString());
+            localStorage.setItem('adminPassword', password);
 
-            // 로그인 후 adminId로 상점 정보 가져오기
             const storeInfo = await fetchStoreInfo(adminId);
             authContext?.setStoreInfo(storeInfo);
 
-            navigate('/kiosk-selection'); // 로그인 후 키오스크 선택 페이지로 이동
+            navigate('/kiosk-selection');
         } catch (err) {
             setError('Invalid name or password');
         }
     };
 
     return (
-        <div>
-            <h2>로그인</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <input
+        <LoginContainer>
+            <Title>로그인</Title>
+            {error && <Error>{error}</Error>}
+            <Input
                 type="text"
                 placeholder="아이디"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
             />
-            <input
+            <Input
                 type="password"
                 placeholder="비밀번호"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
             />
-            <button onClick={handleLogin}>로그인</button>
-            <p>계정이 없으신가요? <Link to="/sign_up">회원가입</Link></p>
-        </div>
+            <Button onClick={handleLogin}>로그인</Button>
+            <SignUpLink to="/sign_up">계정이 없으신가요? 회원가입</SignUpLink>
+        </LoginContainer>
     );
 };
 
