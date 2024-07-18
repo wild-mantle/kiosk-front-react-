@@ -270,9 +270,14 @@ const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dis
                 </TimerWrapper>
                 <FooterWrapper>
                     <ToggleButton onClick={toggleHighContrast}>Toggle High Contrast</ToggleButton>
-                    <CheckoutButtonWrapper onClick={() => handleCheckoutClick}>
+                    {/*<CheckoutButtonWrapper onClick={() => handleCheckoutClick}>
                         Checkout
-                    </CheckoutButtonWrapper>
+                    </CheckoutButtonWrapper>*/}
+                    <CheckoutButton
+                        selectedProducts={selectedProducts}
+                        totalPrice={totalPrice}
+                        onCheckoutClick={handleCheckoutClick}
+                    />
                 </FooterWrapper>
                 <div>
                     <h3>현재 키오스크: {authContext?.kioskInfo?.number}</h3>
