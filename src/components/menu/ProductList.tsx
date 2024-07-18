@@ -5,10 +5,21 @@ import ProductCard from './ProductCard';
 import styled from 'styled-components';
 
 const ProductListWrapper = styled.div`
-    grid-area: products;
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
+    justify-content: center;
+
+    @media (min-width: 1200px) {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: 1199px) and (min-width: 600px) {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media (max-width: 499px) {
+        grid-template-columns: 1fr;
+    }
 `;
 
 const ArrowButton = styled.button<{ show: boolean }>`
@@ -17,12 +28,25 @@ const ArrowButton = styled.button<{ show: boolean }>`
     font-size: 1.5rem;
     cursor: pointer;
     display: ${({ show }) => (show ? 'block' : 'none')};
+
+    &:disabled {
+        color: grey;
+        cursor: not-allowed;
+    }
 `;
 
 const NavigationWrapper = styled.div`
     display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+`;
+
+const ArrowContainer = styled.div`
+    display: flex;
     justify-content: space-between;
     align-items: center;
+    width: 100%;
 `;
 
 interface ProductListProps {
