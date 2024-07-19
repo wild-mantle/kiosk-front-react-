@@ -8,7 +8,6 @@ import { AuthContext } from '../context/AuthContext';
 import './PaymentPage.css';
 import PointModal from './PointModal';
 import PasswordModal from './PasswordModal';
-import passwordModal from "./PasswordModal";
 
 interface LocationState {
     orderData: OrderModuleDTO;
@@ -34,6 +33,8 @@ const PaymentPage: React.FC = () => {
     const [isValid, setIsValid] = useState(false); // 비밀번호 유효성 상태 추가
     const [points, setPoints] = useState(0); // 포인트 상태 추가
     const authContext = useContext(AuthContext);
+
+    const API_URL = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         const loadIamportScript = async () => {
@@ -78,7 +79,7 @@ const PaymentPage: React.FC = () => {
         console.log(searchInput); // 입력된 전화번호를 콘솔에 출력
         setStoredPhoneNumber(searchInput); // 검색한 전화번호를 저장
         try {
-            const response = await axios.get(`http://localhost:8080/api/customer/${searchInput}`);
+            const response = await axios.get(`${API_URL}/api/customer/${searchInput}`);
             if (response.status === 200) {
                 // 전화번호가 이미 존재하면 비밀번호 입력 모달 열기
                 setExistingCustomer(true);
@@ -111,7 +112,7 @@ const PaymentPage: React.FC = () => {
         console.log(storedPhoneNumber); // 저장된 전화번호를 콘솔에 출력
         if (existingCustomer) {
             try {
-                const response = await axios.post('http://localhost:8080/api/customer/validatePassword', {
+                const response = await axios.post(`${API_URL}/api/customer/validatePassword`, {
                     phoneNumber: storedPhoneNumber,
                     password: password
                 });
@@ -137,7 +138,7 @@ const PaymentPage: React.FC = () => {
         } else {
             // 새 고객 등록 및 비밀번호 설정 로직
             try {
-                const response = await axios.post('http://localhost:8080/api/customer/register', {
+                const response = await axios.post(`${API_URL}/api/customer/register`, {
                     phoneNumber: storedPhoneNumber,
                     password: password
                 });
@@ -205,7 +206,7 @@ const PaymentPage: React.FC = () => {
                 async (rsp: any) => {
                     if (rsp.success) {
                         console.log('결제 성공:', rsp);
-                        await axios.post('http://localhost:8080/api/orders/iamPortDto', {
+                        await axios.post(`${API_URL}/api/orders/iamPortDto`, {
                             price: orderData.price,
                             paymentUid: rsp.imp_uid, // 결제 고유번호
                             orderUid: rsp.merchant_uid // 주문번호
@@ -223,7 +224,7 @@ const PaymentPage: React.FC = () => {
 
 
 
-                            const response = await axios.post('http://localhost:8080/api/orders', orderDTO);
+                            const response = await axios.post(`${API_URL}/api/orders`, orderDTO);
 
 
                             //
@@ -240,7 +241,7 @@ const PaymentPage: React.FC = () => {
 
                             for (let i = 0; i < orderItemDTOList.length; i++) {
                                 const response2 = await axios.post(
-                                    'http://localhost:8080/api/orderitems',
+                                    `${API_URL}/api/orderitems`,
                                     orderItemDTOList[i]);
                             }
 
@@ -253,7 +254,7 @@ const PaymentPage: React.FC = () => {
                             if (authContext?.customerInfo) {
                                 if (authContext.usePointSwitch) {
                                     // 포인트 사용 로직
-                                    await axios.post('http://localhost:8080/api/customer/usePoints', {
+                                    await axios.post(`${API_URL}/api/customer/usePoints`, {
                                         phoneNumber: authContext.customerInfo.phoneNumber,
                                         totalPrice: orderData.price,
                                         pointsToUse: points
@@ -263,7 +264,7 @@ const PaymentPage: React.FC = () => {
 
                                 // 포인트 적립 로직
                                 const pointsToAdd = Math.floor(orderData.price * 0.01);
-                                await axios.post('http://localhost:8080/api/customer/addPoints', {
+                                await axios.post(`${API_URL}/api/customer/addPoints`, {
                                     phoneNumber: authContext.customerInfo.phoneNumber,
                                     totalPrice: orderData.price,
                                     pointsToUse: 0 // 적립할 때는 사용 포인트는 0으로 설정

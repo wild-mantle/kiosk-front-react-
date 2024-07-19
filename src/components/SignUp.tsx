@@ -55,6 +55,8 @@ const LoginLink = styled(Link)`
     }
 `;
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const SignUp: React.FC = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
@@ -64,7 +66,7 @@ const SignUp: React.FC = () => {
 
     const handleSignUp = async () => {
         try {
-            await axios.post('http://localhost:8080/api/kk/kiosk/sign_up', {
+            await axios.post(`${API_URL}/api/kk/kiosk/sign_up`, {
                 name: username,
                 password,
                 email

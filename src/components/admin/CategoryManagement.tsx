@@ -8,11 +8,13 @@ interface Category {
     visible: boolean;
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const CategoryManagement: React.FC = () => {
     const [categories, setCategories] = useState<Category[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState('');
-    const apiHost = "http://localhost:8080";
+    const apiHost = `${API_URL}`;
 
     useEffect(() => {
         axios.get(`${apiHost}/admin/category/all`)

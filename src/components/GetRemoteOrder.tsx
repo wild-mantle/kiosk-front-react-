@@ -25,13 +25,15 @@ const gptProduct: Product = {
     options: [],
 };
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const checkServerStatus = async () => {
     try {
-        const response = await fetch('http://localhost:8080/checkout-status');
+        const response = await fetch(`${API_URL}/checkout-status`);
         if (response.ok) {
             const data = await response.json();
             if (data) {
-                const response2 = await fetch('http://localhost:8080/get-remote-order');
+                const response2 = await fetch(`${API_URL}/get-remote-order`);
                 const gptOrder: OrderModuleDTO = await response2.json();
                 console.log("원격에서 오더 내용 패치 성공")
                 requestGPTPay(gptOrder);

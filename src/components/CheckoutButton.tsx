@@ -14,6 +14,8 @@ const CheckoutButtonWrapper = styled.button`
     }
 `;
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 interface CheckoutButtonProps {
     selectedProducts: Product[];
     totalPrice: number;
@@ -23,7 +25,7 @@ interface CheckoutButtonProps {
 const CheckoutButton: React.FC<CheckoutButtonProps> = ({ selectedProducts, totalPrice, onCheckoutClick }) => {
     const handleCheckout = () => {
         const adminName = localStorage.getItem('adminId');
-        axios.get(`http://localhost:8080/api/request_payment/check_out/${adminName}`)
+        axios.get(`${API_URL}/api/request_payment/check_out/${adminName}`)
             .then(response => {
                 const data = response.data;
                 console.log(data);

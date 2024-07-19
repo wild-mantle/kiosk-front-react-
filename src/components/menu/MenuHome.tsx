@@ -8,13 +8,14 @@ import SelectedItems from './SelectedItems';
 import Timer from './Timer';
 import CheckoutButton from '../CheckoutButton';
 import CustomOptionModal from '../CustomOptionModal';
-import PaymentModal from '../PaymentModel';
 import axios from '../../api/axiosConfig';
 import { Product, CustomOption, OrderModuleDTO, Category as CategoryType } from '../../types';
 import Modal from 'react-modal';
 import styled, { ThemeProvider } from 'styled-components';
 import GetRemoteOrder from "../GetRemoteOrder";
 import { lightTheme, highContrastTheme } from '../../themes';
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 Modal.setAppElement('#root');
 
@@ -74,7 +75,7 @@ const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dis
     const navigate = useNavigate();
 
     useEffect(() => {
-        axios.get('http://localhost:8080/api/menus/categories')
+        axios.get(`${API_URL}/api/menus/categories`)
             .then(response => {
                 const updatedCategories = response.data.map((category: CategoryType) => ({
                     ...category,
@@ -91,7 +92,7 @@ const MenuHome: React.FC<{ isHighContrast: boolean, setIsHighContrast: React.Dis
     }, []);
 
     const handleProductClick = (product: Product) => {
-        axios.get(`http://localhost:8080/api/menus/select-custom-option/${product.id}`)
+        axios.get(`${API_URL}/api/menus/select-custom-option/${product.id}`)
             .then(response => {
                 const options = response.data;
                 if (options.length > 0) {
