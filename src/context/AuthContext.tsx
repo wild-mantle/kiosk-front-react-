@@ -1,5 +1,4 @@
-// src/context/AuthContext.tsx
-import React, { createContext, useState, ReactNode } from 'react';
+import React, { createContext, useState, ReactNode, useEffect } from 'react';
 
 interface Store {
     id: number;
@@ -24,7 +23,7 @@ interface Customer {
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: () => void;
+    login: (token: string) => void;
     logout: () => void;
     storeInfo: Store | null;
     setStoreInfo: (info: Store | null) => void;
@@ -49,13 +48,25 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const [customerInfo, setCustomerInfo] = useState<Customer | null>(null);
     const [usePointSwitch, setUsePointSwitch] = useState<boolean>(false);
 
-    const login = () => setIsAuthenticated(true);
+    useEffect(() => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            setIsAuthenticated(true);
+        }
+    }, []);
+
+    const login = (token: string) => {
+        localStorage.setItem('token', token);
+        setIsAuthenticated(true);
+    };
+
     const logout = () => {
+        localStorage.removeItem('token');
         setIsAuthenticated(false);
-        setStoreInfo(null); // 로그아웃 시 상점 정보 초기화
-        setKioskInfo(null); // 로그아웃 시 키오스크 정보 초기화
-        setCustomerInfo(null); // 로그아웃 시 고객 정보 초기화
-        setUsePointSwitch(false); // 로그아웃 시 포인트 사용 스위치 초기화
+        setStoreInfo(null);
+        setKioskInfo(null);
+        setCustomerInfo(null);
+        setUsePointSwitch(false);
     };
 
     return (

@@ -1,4 +1,3 @@
-// src/api/auth.ts
 import axios from './axiosConfig';
 
 export const login = async (name: string, password: string) => {
