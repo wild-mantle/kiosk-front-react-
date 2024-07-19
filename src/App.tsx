@@ -9,6 +9,7 @@ import SignUp from './components/SignUp';
 import PaymentPage from './components/PaymentPage';
 import KioskSelectionPage from './components/KioskSelectionPage';
 import GuardPage from './components/GuardPage';
+import OrderCompleteCheck from "./components/admin/OrderCompleteCheck";
 
 const App: React.FC = () => {
     const [isHighContrast, setIsHighContrast] = useState(false);
@@ -19,11 +20,13 @@ const App: React.FC = () => {
                 <Routes>
                     <Route path="/users/login" element={<Login />} />
                     <Route path="/sign_up" element={<SignUp />} />
-                    <Route path="/kiosk-selection" element={<PrivateRoute component={<KioskSelectionPage />} />} />
-                    <Route path="/menu" element={<PrivateRoute component={<MenuHome isHighContrast={isHighContrast} setIsHighContrast={setIsHighContrast} />} />} />
-                    <Route path="/payment" element={<PrivateRoute component={<PaymentPage />} />} />
-                    <Route path="/guard" element={<PrivateRoute component={<GuardPage />} />} />
-                    <Route path="/*" element={<Navigate to="/users/login" />} />
+
+                    <Route path="/kiosk-selection" element={<KioskSelectionPage />} />
+                    <Route path="/menu" element={<MenuHome isHighContrast={isHighContrast} setIsHighContrast={setIsHighContrast} />} />                    <Route path="/payment" element={<PaymentPage />} />
+                    <Route path="/guard" element={<GuardPage />} />
+                    <Route path="/admin/orderComplete" element={<OrderCompleteCheck />} />
+                    <Route path="*" element={<Navigate to="/users/login" />} />
+
                 </Routes>
             </ThemeProvider>
         </AuthProvider>
