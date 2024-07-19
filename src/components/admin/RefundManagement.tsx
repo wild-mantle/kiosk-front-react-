@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from '../../api/axiosConfig';
+import {format} from 'date-fns';
 
 interface Order{
     id: number;
@@ -71,7 +72,7 @@ const RefundManagement: React.FC = () => {
             <ul>
                 {orders.map(order => (
                     <li key={order.id}>
-                        <>구매시간 : {order.dateTime} / 가격 : {order.totalPrice}</>
+                        <>구매시간 : {format(order.dateTime, 'yyyy-MM-dd HH:mm')} / 가격 : {order.totalPrice}</>
                         <button onClick={() => handleDeleteOrder(order.id)}>취소</button>
                     </li>
                 ))}
