@@ -142,7 +142,7 @@ const ProductManagement: React.FC = () => {
     return (
         <div>
             <h2>상품 관리</h2>
-            <div>
+            {/*<div>
                 {categories.map(category => (
                     <button
                         key={category.id}
@@ -158,7 +158,7 @@ const ProductManagement: React.FC = () => {
                 >
                     전체
                 </button>
-            </div>
+            </div>*/}
             <button onClick={handleOpenAddModal}>+ 상품 추가</button>
             {showAddModal && (
                 <div className="modal">
