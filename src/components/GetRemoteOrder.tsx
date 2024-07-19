@@ -21,6 +21,7 @@ const gptProduct: Product = {
     price: 0,
     description: 'GPT-3를 사용한 주문',
     quantity: 1,
+    imageUrl: '',
     options: [],
 };
 
