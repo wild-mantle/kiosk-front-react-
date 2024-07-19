@@ -20,11 +20,13 @@ const App: React.FC = () => {
                 <Routes>
                     <Route path="/users/login" element={<Login />} />
                     <Route path="/sign_up" element={<SignUp />} />
+
                     <Route path="/kiosk-selection" element={<KioskSelectionPage />} />
                     <Route path="/menu" element={<MenuHome isHighContrast={isHighContrast} setIsHighContrast={setIsHighContrast} />} />                    <Route path="/payment" element={<PaymentPage />} />
                     <Route path="/guard" element={<GuardPage />} />
                     <Route path="/admin/orderComplete" element={<OrderCompleteCheck />} />
                     <Route path="*" element={<Navigate to="/users/login" />} />
+
                 </Routes>
             </ThemeProvider>
         </AuthProvider>
