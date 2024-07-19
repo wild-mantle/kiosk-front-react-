@@ -9,6 +9,7 @@ import SignUp from './components/SignUp';
 import PaymentPage from './components/PaymentPage';
 import KioskSelectionPage from './components/KioskSelectionPage';
 import GuardPage from './components/GuardPage';
+import OrderCompleteCheck from "./components/admin/OrderCompleteCheck";
 
 const App: React.FC = () => {
     const [isHighContrast, setIsHighContrast] = useState(false);
@@ -22,6 +23,7 @@ const App: React.FC = () => {
                     <Route path="/kiosk-selection" element={<KioskSelectionPage />} />
                     <Route path="/menu" element={<MenuHome isHighContrast={isHighContrast} setIsHighContrast={setIsHighContrast} />} />                    <Route path="/payment" element={<PaymentPage />} />
                     <Route path="/guard" element={<GuardPage />} />
+                    <Route path="/admin/orderComplete" element={<OrderCompleteCheck />} />
                     <Route path="*" element={<Navigate to="/users/login" />} />
                 </Routes>
             </ThemeProvider>
