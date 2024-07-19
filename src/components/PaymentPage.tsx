@@ -249,7 +249,7 @@ const PaymentPage: React.FC = () => {
                                 console.log('비회원 결제');
                             }
 
-                            navigate('/home'); // 결제 완료 후 홈으로 이동
+                            navigate('/guard'); // 결제 완료 후 홈으로 이동
                         } catch (error) {
                             console.error('주문 생성 실패:', error);
                             alert('주문 생성 실패!');
