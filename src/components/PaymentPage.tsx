@@ -221,7 +221,31 @@ const PaymentPage: React.FC = () => {
                                 paymentUid: rsp.imp_uid
                             };
 
+
+
                             const response = await axios.post('http://localhost:8080/api/orders', orderDTO);
+
+
+                            //
+
+                            const orderItemDTOList = selectedProducts.map(product => {
+                                return {
+                                    paymentUid: orderDTO.paymentUid,
+                                    menuId: product.id,
+                                    // customOptions: product.options,
+                                    quantity: product.quantity,
+                                    price: product.price
+                                }
+                            });
+
+                            for (let i = 0; i < orderItemDTOList.length; i++) {
+                                const response2 = await axios.post(
+                                    'http://localhost:8080/api/orderitems',
+                                    orderItemDTOList[i]);
+                            }
+
+                            //
+
                             console.log('서버 응답:', response.data);
                             alert('결제 완료!');
 
