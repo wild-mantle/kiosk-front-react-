@@ -45,6 +45,8 @@ const KioskItem = styled.li`
     }
 `;
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const KioskSelectionPage: React.FC = () => {
     const [kiosks, setKiosks] = useState<Kiosk[]>([]);
     const authContext = useContext(AuthContext);
@@ -59,7 +61,7 @@ const KioskSelectionPage: React.FC = () => {
                     console.error('No adminId found in localStorage');
                     return;
                 }
-                const response = await axios.get(`http://localhost:8080/api/kiosks/${adminId}/kiosks`);
+                const response = await axios.get(`${API_URL}/api/kiosks/${adminId}/kiosks`);
                 console.log('Fetched kiosks:', response.data);
                 setKiosks(response.data);
             } catch (error) {

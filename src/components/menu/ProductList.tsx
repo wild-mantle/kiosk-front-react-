@@ -4,6 +4,8 @@ import { Product } from '../../types';
 import ProductCard from './ProductCard';
 import styled from 'styled-components';
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const ProductListWrapper = styled.div`
     display: grid;
     gap: 1rem;
@@ -60,7 +62,7 @@ const ProductList: React.FC<ProductListProps> = ({ categoryId, onProductClick })
 
     useEffect(() => {
         if (categoryId !== null) {
-            axios.get(`http://localhost:8080/api/menus/${categoryId}`)
+            axios.get(`${API_URL}/api/menus/${categoryId}`)
                 .then(response => {
                     const data = response.data;
                     if (Array.isArray(data)) {

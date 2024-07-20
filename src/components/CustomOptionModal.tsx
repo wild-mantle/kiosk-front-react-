@@ -15,6 +15,8 @@ interface CustomOptionModalProps {
     onUpdateProduct: (updatedProduct: Product) => void;
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
                                                                  isOpen,
                                                                  onRequestClose,
@@ -32,7 +34,7 @@ const CustomOptionModal: React.FC<CustomOptionModalProps> = ({
     const [totalPrice, setTotalPrice] = useState<number>(selectedProduct.price);
 
     useEffect(() => {
-        axios.get(`http://localhost:8080/api/menus/select-custom-option/${menuId}`)
+        axios.get(`${API_URL}/api/menus/select-custom-option/${menuId}`)
             .then(response => {
                 const options: CustomOption[] = response.data;
                 setOptions(options);

@@ -19,11 +19,11 @@ const RefundManagement: React.FC = () => {
     const [orders, setOrders] = useState<Order[]>([]);
     const [refunds, setRefunds] = useState<Refund[]>([]);
     const [showAddModal, setShowAddModal] = useState(false);
-    const apiHost = "http://localhost:8080";
+    const API_URL = process.env.REACT_APP_API_URL;
     const iamportHost = "https://api.iamport.kr";
 
     useEffect(() => {
-        axios.get(`${apiHost}/admin/payment/all`)
+        axios.get(`${API_URL}/admin/payment/all`)
             .then(response => setOrders(response.data))
             .catch(err => console.log('에러 확인: ', err));
     },[])
@@ -49,7 +49,7 @@ const RefundManagement: React.FC = () => {
             .catch(err => console.log(err));
         axios.post(`https://api.iamport.kr/payments/cancel?_token=ef40495dd39d10d51dfb289d9789af246659cc51`,
             {imp_uid: {paymentUid}})*/
-        axios.delete(`${apiHost}/admin/payment/delete`, {params: {id}})
+        axios.delete(`${API_URL}/admin/payment/delete`, {params: {id}})
             .then(()=>{
                 setOrders(orders.filter(order => order.id !== id))
                 alert('취소되었습니다.');

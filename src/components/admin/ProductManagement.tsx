@@ -29,7 +29,7 @@ const ProductManagement: React.FC = () => {
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [newProduct, setNewProduct] = useState<Product>({ id: 0, name: '', price: 0, category: '', soldOut: false, tag: '' });
     const [editingProductId, setEditingProductId] = useState<number | null>(null);
-    const apiHost = "http://localhost:8080";
+    const API_URL = process.env.REACT_APP_API_URL;
 
     useEffect(() => {
         fetchProducts();
@@ -37,13 +37,13 @@ const ProductManagement: React.FC = () => {
     }, []);
 
     const fetchProducts = () => {
-        axios.get(`${apiHost}/api/menus/all`)
+        axios.get(`${API_URL}/api/menus/all`)
             .then(response => setProducts(response.data))
             .catch(error => console.error('Error fetching products:', error));
     };
 
     const fetchCategories = () => {
-        axios.get(`${apiHost}/admin/category/all`)
+        axios.get(`${API_URL}/admin/category/all`)
             .then(response => setCategories(response.data))
             .catch(error => console.error('Error fetching categories:', error));
     };
@@ -69,7 +69,7 @@ const ProductManagement: React.FC = () => {
             tag: newProduct.tag,
         };
 
-        axios.post(`${apiHost}/admin/menu/add_rest_simple`, newProductData)
+        axios.post(`${API_URL}/admin/menu/add_rest_simple`, newProductData)
             .then(response => {
                 fetchProducts();
                 handleCloseModal();
@@ -93,7 +93,7 @@ const ProductManagement: React.FC = () => {
             return;
         }
 
-        axios.put(`${apiHost}/api/update/menus/${editingProductId}`, updatedProductData)
+        axios.put(`${API_URL}/api/update/menus/${editingProductId}`, updatedProductData)
             .then(response => {
                 fetchProducts();
                 handleCloseModal();
@@ -105,7 +105,7 @@ const ProductManagement: React.FC = () => {
         if (!window.confirm("정말로 삭제하시겠습니까?")) {
             return;
         }
-        axios.delete(`${apiHost}/admin/menu/delete/${id}`)
+        axios.delete(`${API_URL}/admin/menu/delete/${id}`)
             .then(() => {
                 fetchProducts();
                 alert('삭제되었습니다');

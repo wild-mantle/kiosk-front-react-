@@ -15,6 +15,8 @@ interface Menu {
     name: string;
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const OptionManagement: React.FC = () => {
     const [options, setOptions] = useState<Option[]>([]);
     const [menus, setMenus] = useState<Menu[]>([]);
@@ -27,14 +29,13 @@ const OptionManagement: React.FC = () => {
     const [newItemName, setNewItemName] = useState('');
     const [newItemPrice, setNewItemPrice] = useState(0);
     const [sortKey, setSortKey] = useState<'id' | 'menuName'>('id');
-    const apiHost = "http://localhost:8080";
 
     useEffect(() => {
-        axios.get(`${apiHost}/api/menus/all-custom-options-with-menu-name`)
+        axios.get(`${API_URL}/api/menus/all-custom-options-with-menu-name`)
             .then(response => setOptions(response.data))
             .catch(error => console.error('Error fetching options:', error));
 
-        axios.get(`${apiHost}/api/menus/all`)
+        axios.get(`${API_URL}/api/menus/all`)
             .then(response => {
                 // 중복된 메뉴 이름 제거
                 const uniqueMenus = response.data.reduce((acc: Menu[], menu: Menu) => {
@@ -58,7 +59,7 @@ const OptionManagement: React.FC = () => {
         };
 
         // 백엔드 API 호출하여 옵션 추가
-        axios.post(`${apiHost}/api/menus/add-custom-option`, newOption)
+        axios.post(`${API_URL}/api/menus/add-custom-option`, newOption)
             .then(response => {
                 // 옵션 목록 갱신
                 setOptions([...options, response.data])
@@ -73,7 +74,7 @@ const OptionManagement: React.FC = () => {
         if (!window.confirm("정말로 삭제하시겠습니까?")) {
             return;
         }
-        axios.delete(`${apiHost}/api/menus/delete-custom-option/${id}`)
+        axios.delete(`${API_URL}/api/menus/delete-custom-option/${id}`)
             .then(() => {
                 setOptions(options.filter(option => option.id !== id))
                 alert('삭제되었습니다');
@@ -99,7 +100,7 @@ const OptionManagement: React.FC = () => {
         setNewItemPrice(0);
 
         // 추가된 코드: 새로 추가된 옵션을 포함하도록 옵션 목록 갱신
-        axios.get(`${apiHost}/api/menus/all-custom-options-with-menu-name`)
+        axios.get(`${API_URL}/api/menus/all-custom-options-with-menu-name`)
             .then(response => setOptions(response.data))
             .catch(error => console.error('Error fetching options:', error));
     };

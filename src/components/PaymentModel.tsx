@@ -11,6 +11,8 @@ interface PaymentModalProps {
     orderData: OrderModuleDTO;
 }
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onRequestClose, orderData }) => {
     const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 
@@ -50,7 +52,7 @@ const PaymentModal: React.FC<PaymentModalProps> = ({ isOpen, onRequestClose, ord
                     if (rsp.success) {
                         console.log('결제 성공:', rsp);
                         try {
-                            const response = await axios.post('http://localhost:8080/api/request_payment/check_out', {
+                            const response = await axios.post(`${API_URL}/api/request_payment/check_out`, {
                                 order_uid: rsp.merchant_uid, // 주문번호
                                 payment_uid: rsp.imp_uid, // 결제 고유번호
                             });
